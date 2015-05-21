@@ -1,5 +1,4 @@
 ﻿using Microsoft.CodeAnalysis;
-using RoslynTester.Helpers;
 
 namespace RoslynTester.DiagnosticResults
 {
@@ -8,20 +7,9 @@ namespace RoslynTester.DiagnosticResults
     /// </summary>
     public struct DiagnosticResult
     {
-        private DiagnosticResultLocation[] _locations;
-
-        public DiagnosticResultLocation[] Locations
-        {
-            get { return _locations ?? (_locations = new DiagnosticResultLocation[] { }); }
-
-            set { _locations = value; }
-        }
-
+        public DiagnosticResultLocation[] Locations { get; set; }
         public DiagnosticSeverity Severity { get; set; }
         public string Id { get; set; }
         public string Message { get; set; }
-        public string Path => Locations.Length > 0 ? Locations[0].Path : "";
-        public int Line => Locations.Length > 0 ? Locations[0].Line : -1;
-        public int Column => Locations.Length > 0 ? Locations[0].Column : -1;
     }
 }

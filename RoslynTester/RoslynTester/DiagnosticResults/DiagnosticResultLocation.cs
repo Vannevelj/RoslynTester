@@ -7,22 +7,18 @@ namespace RoslynTester.DiagnosticResults
     /// </summary>
     public struct DiagnosticResultLocation
     {
-        public int Column;
-        public int Line;
-        public string Path;
+        public int? Column { get; }
+        public int? Line { get; }
+        public string FilePath { get; }
 
-        public DiagnosticResultLocation(string path, int line, int column)
+        public DiagnosticResultLocation(string filePath, int line, int column)
         {
-            if (line < 0 && column < 0)
+            if (line < 0 || column < 0)
             {
-                throw new ArgumentOutOfRangeException("At least one of line and column must be > 0");
-            }
-            if (line < -1 || column < -1)
-            {
-                throw new ArgumentOutOfRangeException("Both line and column must be >= -1");
+                throw new ArgumentOutOfRangeException("Line and column should be 0 or positive.");
             }
 
-            Path = path;
+            FilePath = filePath;
             Line = line;
             Column = column;
         }

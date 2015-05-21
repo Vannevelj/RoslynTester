@@ -106,18 +106,7 @@ namespace RoslynTester.Helpers
         /// <param name="expected"> DiagnosticResults that should appear after the analyzer is run on the source</param>
         protected void VerifyCSharpDiagnostic(string source, params DiagnosticResult[] expected)
         {
-            VerifyDiagnostics(new[] { source }, LanguageNames.CSharp, GetCSharpDiagnosticAnalyzer(), expected);
-        }
-
-        /// <summary>
-        ///     Called to test a VB DiagnosticAnalyzer when applied on the single inputted string as a source
-        ///     Note: input a DiagnosticResult for each Diagnostic expected
-        /// </summary>
-        /// <param name="source">A class in the form of a string to run the analyzer on</param>
-        /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the source</param>
-        protected void VerifyVisualBasicDiagnostic(string source, params DiagnosticResult[] expected)
-        {
-            VerifyDiagnostics(new[] { source }, LanguageNames.VisualBasic, GetVisualBasicDiagnosticAnalyzer(), expected);
+            VerifyCSharpDiagnostic(new[] { source }, expected);
         }
 
         /// <summary>
@@ -129,6 +118,17 @@ namespace RoslynTester.Helpers
         protected void VerifyCSharpDiagnostic(string[] sources, params DiagnosticResult[] expected)
         {
             VerifyDiagnostics(sources, LanguageNames.CSharp, GetCSharpDiagnosticAnalyzer(), expected);
+        }
+
+        /// <summary>
+        ///     Called to test a VB DiagnosticAnalyzer when applied on the single inputted string as a source
+        ///     Note: input a DiagnosticResult for each Diagnostic expected
+        /// </summary>
+        /// <param name="source">A class in the form of a string to run the analyzer on</param>
+        /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the source</param>
+        protected void VerifyVisualBasicDiagnostic(string source, params DiagnosticResult[] expected)
+        {
+            VerifyVisualBasicDiagnostic(new[] { source }, expected);
         }
 
         /// <summary>
@@ -178,8 +178,7 @@ namespace RoslynTester.Helpers
 
             if (expectedCount != actualCount)
             {
-                var diagnosticsOutput = results.Any() ? FormatDiagnostics(analyzer, results) : "    NONE.";
-
+                var diagnosticsOutput = results.Any() ? FormatDiagnostics(analyzer, results) : "NONE.";
                 Assert.Fail($"Mismatch between number of diagnostics returned, expected \"{expectedCount}\" actual \"{actualCount}\"\r\n\r\nDiagnostics:\r\n{diagnosticsOutput}\r\n");
             }
 
@@ -188,42 +187,32 @@ namespace RoslynTester.Helpers
                 var actual = results[i];
                 var expected = expectedResults[i];
 
-                if (expected.Line == -1 && expected.Column == -1)
-                {
-                    if (actual.Location != Location.None)
-                    {
-                        Assert.Fail($"Expected:\nA project diagnostic with No location\nActual:\n{FormatDiagnostics(analyzer, actual)}");
-                    }
-                }
-                else
-                {
-                    VerifyDiagnosticLocation(analyzer, actual, actual.Location, expected.Locations.First());
-                    var additionalLocations = actual.AdditionalLocations.ToArray();
-
-                    if (additionalLocations.Length != expected.Locations.Length - 1)
-                    {
-                        Assert.Fail($"Expected {expected.Locations.Length - 1} additional locations but got {additionalLocations.Length} for Diagnostic:\r\n    {FormatDiagnostics(analyzer, actual)}\r\n");
-                    }
-
-                    for (var j = 0; j < additionalLocations.Length; ++j)
-                    {
-                        VerifyDiagnosticLocation(analyzer, actual, additionalLocations[j], expected.Locations[j + 1]);
-                    }
-                }
-
                 if (actual.Id != expected.Id)
                 {
-                    Assert.Fail($"Expected diagnostic id to be \"{expected.Id}\" was \"{actual.Id}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer, actual)}\r\n");
+                    Assert.Fail($"Expected diagnostic id to be \"{expected.Id}\" was \"{actual.Id}\"\r\n\r\nDiagnostic:\r\n{FormatDiagnostics(analyzer, actual)}\r\n");
                 }
 
                 if (actual.Severity != expected.Severity)
                 {
-                    Assert.Fail($"Expected diagnostic severity to be \"{expected.Severity}\" was \"{actual.Severity}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer, actual)}\r\n");
+                    Assert.Fail($"Expected diagnostic severity to be \"{expected.Severity}\" was \"{actual.Severity}\"\r\n\r\nDiagnostic:\r\n{FormatDiagnostics(analyzer, actual)}\r\n");
                 }
 
                 if (actual.GetMessage() != expected.Message)
                 {
-                    Assert.Fail($"Expected diagnostic message to be \"{expected.Message}\" was \"{actual.GetMessage()}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer, actual)}\r\n");
+                    Assert.Fail($"Expected diagnostic message to be \"{expected.Message}\" was \"{actual.GetMessage()}\"\r\n\r\nDiagnostic:\r\n{FormatDiagnostics(analyzer, actual)}\r\n");
+                }
+
+                var actualLocations = new[] { actual.Location }.Concat(actual.AdditionalLocations).ToArray();
+                if (actualLocations.Length != expected.Locations.Length)
+                {
+                    Assert.Fail($"Expected {expected.Locations.Length - 1} additional locations but got {actualLocations.Length} for Diagnostic:\r\n{FormatDiagnostics(analyzer, actual)}\r\n");
+                }
+
+                for (var j = 0; j < expected.Locations.Length; j++)
+                {
+                    var expectedLocation = expected.Locations[j];
+                    var actualLocation = actualLocations[j];
+                    VerifyDiagnosticLocation(analyzer, actual, actualLocation, expectedLocation);
                 }
             }
         }
@@ -238,31 +227,29 @@ namespace RoslynTester.Helpers
         /// <param name="expected">The DiagnosticResultLocation that should have been found</param>
         private static void VerifyDiagnosticLocation(DiagnosticAnalyzer analyzer, Diagnostic diagnostic, Location actual, DiagnosticResultLocation expected)
         {
-            var actualSpan = actual.GetLineSpan();
-
-            Assert.IsTrue(actualSpan.Path == expected.Path || (actualSpan.Path != null && actualSpan.Path.Contains("Test0.") && expected.Path.Contains("Test.")),
-                $"Expected diagnostic to be in file \"{expected.Path}\" was actually in file \"{actualSpan.Path}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer, diagnostic)}\r\n");
-
-            var actualLinePosition = actualSpan.StartLinePosition;
-
-            // Only check line position if there is an actual line in the real diagnostic
-            if (actualLinePosition.Line > 0)
+            if (expected.Line == null || expected.Column == null)
             {
-                if (actualLinePosition.Line + 1 != expected.Line)
+                if (actual != Location.None)
                 {
-                    Assert.Fail(
-                        $"Expected diagnostic to be on line \"{expected.Line}\" was actually on line \"{actualLinePosition.Line + 1}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer, diagnostic)}\r\n");
+                    Assert.Fail($"Expected:\nA project diagnostic with No location\nActual:\n{FormatDiagnostics(analyzer, diagnostic)}");
                 }
             }
 
-            // Only check column position if there is an actual column position in the real diagnostic
-            if (actualLinePosition.Character > 0)
+            var actualSpan = actual.GetLineSpan();
+            Assert.AreEqual(actualSpan.Path, expected.FilePath,
+                $"Expected diagnostic to be in file \"{expected.FilePath}\" was actually in file \"{actualSpan.Path}\"\r\n\r\nDiagnostic:\r\n{FormatDiagnostics(analyzer, diagnostic)}\r\n");
+
+            var actualLinePosition = actualSpan.StartLinePosition;
+            if (actualLinePosition.Line + 1 != expected.Line)
             {
-                if (actualLinePosition.Character + 1 != expected.Column)
-                {
-                    Assert.Fail(
-                        $"Expected diagnostic to start at column \"{expected.Column}\" was actually at column \"{actualLinePosition.Character + 1}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer, diagnostic)}\r\n");
-                }
+                Assert.Fail(
+                    $"Expected diagnostic to be on line \"{expected.Line}\" was actually on line \"{actualLinePosition.Line + 1}\"\r\n\r\nDiagnostic:\r\n{FormatDiagnostics(analyzer, diagnostic)}\r\n");
+            }
+
+            if (actualLinePosition.Character + 1 != expected.Column)
+            {
+                Assert.Fail(
+                    $"Expected diagnostic to start at column \"{expected.Column}\" was actually at column \"{actualLinePosition.Character + 1}\"\r\n\r\nDiagnostic:\r\n{FormatDiagnostics(analyzer, diagnostic)}\r\n");
             }
         }
 
@@ -286,7 +273,7 @@ namespace RoslynTester.Helpers
         /// <param name="analyzer">The analyzer to run on the documents</param>
         /// <param name="documents">The Documents that the analyzer will be run on</param>
         /// <returns>An IEnumerable of Diagnostics that surfaced in teh source code, sorted by Location</returns>
-        protected static Diagnostic[] GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, Document[] documents)
+        protected static Diagnostic[] GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, params Document[] documents)
         {
             var projects = new HashSet<Project>();
             foreach (var document in documents)
