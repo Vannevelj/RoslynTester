@@ -204,7 +204,7 @@ namespace RoslynTester.Helpers
                 var actualLocations = new[] { actual.Location }.Concat(actual.AdditionalLocations).ToArray();
                 if (actualLocations.Length != expected.Locations.Length)
                 {
-                    Assert.Fail($"Expected {expected.Locations.Length - 1} additional locations but got {actual.AdditionalLocations.Count} for Diagnostic:\r\n{FormatDiagnostics(analyzer, actual)}\r\n");
+                    Assert.Fail($"Expected {expected.Locations.Length} locations but got {actualLocations.Length} for Diagnostic:\r\n{FormatDiagnostics(analyzer, actual)}\r\n");
                 }
 
                 for (var j = 0; j < expected.Locations.Length; j++)
