@@ -30,7 +30,7 @@ namespace RoslynTester.Helpers
         ///     Returns the codefix being tested (VB) - to be implemented in non-abstract class
         /// </summary>
         /// <returns>The CodeFixProvider to be used for VisualBasic code</returns>
-        protected virtual CodeFixProvider GetBasicCodeFixProvider()
+        protected virtual CodeFixProvider GetVisualBasicCodeFixProvider()
         {
             return null;
         }
@@ -62,7 +62,7 @@ namespace RoslynTester.Helpers
         /// </param>
         protected void VerifyBasicFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
         {
-            VerifyFix(LanguageNames.VisualBasic, GetBasicDiagnosticAnalyzer(), GetBasicCodeFixProvider(), oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
+            VerifyFix(LanguageNames.VisualBasic, GetVisualBasicDiagnosticAnalyzer(), GetVisualBasicCodeFixProvider(), oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace RoslynTester.Helpers
         {
             var document = CreateDocument(oldSource, language);
             var analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, new[] { document });
-            var compilerDiagnostics = GetCompilerDiagnostics(document);
+            var compilerDiagnostics = GetCompilerDiagnostics(document).ToArray();
             var attempts = analyzerDiagnostics.Length;
 
             for (var i = 0; i < attempts; ++i)
@@ -100,9 +100,9 @@ namespace RoslynTester.Helpers
                     break;
                 }
 
-                if (codeFixIndex != null)
+                if (codeFixIndex.HasValue)
                 {
-                    document = ApplyFix(document, actions.ElementAt((int) codeFixIndex));
+                    document = ApplyFix(document, actions.ElementAt(codeFixIndex.Value));
                     break;
                 }
 

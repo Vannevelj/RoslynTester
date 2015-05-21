@@ -93,7 +93,7 @@ namespace RoslynTester.Helpers
         /// <summary>
         ///     Get the Visual Basic analyzer being tested (C#) - to be implemented in non-abstract class
         /// </summary>
-        protected virtual DiagnosticAnalyzer GetBasicDiagnosticAnalyzer()
+        protected virtual DiagnosticAnalyzer GetVisualBasicDiagnosticAnalyzer()
         {
             return null;
         }
@@ -115,9 +115,9 @@ namespace RoslynTester.Helpers
         /// </summary>
         /// <param name="source">A class in the form of a string to run the analyzer on</param>
         /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the source</param>
-        protected void VerifyBasicDiagnostic(string source, params DiagnosticResult[] expected)
+        protected void VerifyVisualBasicDiagnostic(string source, params DiagnosticResult[] expected)
         {
-            VerifyDiagnostics(new[] { source }, LanguageNames.VisualBasic, GetBasicDiagnosticAnalyzer(), expected);
+            VerifyDiagnostics(new[] { source }, LanguageNames.VisualBasic, GetVisualBasicDiagnosticAnalyzer(), expected);
         }
 
         /// <summary>
@@ -137,9 +137,9 @@ namespace RoslynTester.Helpers
         /// </summary>
         /// <param name="sources">An array of strings to create source documents from to run the analyzers on</param>
         /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
-        protected void VerifyBasicDiagnostic(string[] sources, params DiagnosticResult[] expected)
+        protected void VerifyVisualBasicDiagnostic(string[] sources, params DiagnosticResult[] expected)
         {
-            VerifyDiagnostics(sources, LanguageNames.VisualBasic, GetBasicDiagnosticAnalyzer(), expected);
+            VerifyDiagnostics(sources, LanguageNames.VisualBasic, GetVisualBasicDiagnosticAnalyzer(), expected);
         }
 
         /// <summary>
@@ -152,6 +152,11 @@ namespace RoslynTester.Helpers
         /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
         private void VerifyDiagnostics(string[] sources, string language, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expected)
         {
+            if (analyzer == null)
+            {
+                throw new ArgumentNullException(nameof(analyzer));
+            }
+
             var diagnostics = GetSortedDiagnostics(sources, language, analyzer);
             VerifyDiagnosticResults(diagnostics, analyzer, expected);
         }

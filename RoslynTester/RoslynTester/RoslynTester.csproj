@@ -106,14 +106,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Helpers\DiagnosticResult.cs" />
-    <Compile Include="Helpers\DiagnosticVerifier.Helper.cs" />
+    <Compile Include="DiagnosticResults\DiagnosticResult.cs" />
+    <Compile Include="DiagnosticResults\DiagnosticResultLocation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helpers\CodeFixVerifier.cs" />
     <Compile Include="Helpers\DiagnosticVerifier.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Helpers\CodeFixVerifier.Helper.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
