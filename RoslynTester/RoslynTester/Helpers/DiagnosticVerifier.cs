@@ -157,7 +157,7 @@ namespace RoslynTester.Helpers
                 throw new ArgumentNullException(nameof(analyzer));
             }
 
-            var diagnostics = GetSortedDiagnostics(sources, language, analyzer);
+            var diagnostics = GetSortedDiagnosticsFromDocuments(analyzer, GetDocuments(sources, language));
             VerifyDiagnosticResults(diagnostics, analyzer, expected);
         }
 
@@ -205,7 +205,7 @@ namespace RoslynTester.Helpers
                 var actualLocations = new[] { actual.Location }.Concat(actual.AdditionalLocations).ToArray();
                 if (actualLocations.Length != expected.Locations.Length)
                 {
-                    Assert.Fail($"Expected {expected.Locations.Length - 1} additional locations but got {actualLocations.Length} for Diagnostic:\r\n{FormatDiagnostics(analyzer, actual)}\r\n");
+                    Assert.Fail($"Expected {expected.Locations.Length - 1} additional locations but got {actual.AdditionalLocations.Count} for Diagnostic:\r\n{FormatDiagnostics(analyzer, actual)}\r\n");
                 }
 
                 for (var j = 0; j < expected.Locations.Length; j++)
@@ -254,43 +254,24 @@ namespace RoslynTester.Helpers
         }
 
         /// <summary>
-        ///     Given classes in the form of strings, their language, and an IDiagnosticAnlayzer to apply to it, return the
-        ///     diagnostics found in the string after converting it to a document.
-        /// </summary>
-        /// <param name="sources">Classes in the form of strings</param>
-        /// <param name="language">The language the soruce classes are in</param>
-        /// <param name="analyzer">The analyzer to be run on the sources</param>
-        /// <returns>An IEnumerable of Diagnostics that surfaced in teh source code, sorted by Location</returns>
-        private static Diagnostic[] GetSortedDiagnostics(string[] sources, string language, DiagnosticAnalyzer analyzer)
-        {
-            return GetSortedDiagnosticsFromDocuments(analyzer, GetDocuments(sources, language));
-        }
-
-        /// <summary>
         ///     Given an analyzer and a document to apply it to, run the analyzer and gather an array of diagnostics found in it.
         ///     The returned diagnostics are then ordered by location in the source document.
         /// </summary>
         /// <param name="analyzer">The analyzer to run on the documents</param>
         /// <param name="documents">The Documents that the analyzer will be run on</param>
-        /// <returns>An IEnumerable of Diagnostics that surfaced in teh source code, sorted by Location</returns>
+        /// <returns>An IEnumerable of Diagnostics that surfaced in the source code, sorted by Location</returns>
         protected static Diagnostic[] GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, params Document[] documents)
         {
-            var projects = new HashSet<Project>();
-            foreach (var document in documents)
-            {
-                projects.Add(document.Project);
-            }
-
             var diagnostics = new List<Diagnostic>();
-            foreach (var project in projects)
+            foreach (var project in documents.Select(x => x.Project))
             {
                 var compilation = project.GetCompilationAsync().Result;
                 var diags = compilation.WithAnalyzers(ImmutableArray.Create(analyzer)).GetAnalyzerDiagnosticsAsync().Result;
-                foreach (var diag in diags)
+                foreach (var diagnostic in diags)
                 {
-                    if (diag.Location == Location.None || diag.Location.IsInMetadata)
+                    if (diagnostic.Location == Location.None || diagnostic.Location.IsInMetadata)
                     {
-                        diagnostics.Add(diag);
+                        diagnostics.Add(diagnostic);
                     }
                     else
                     {
@@ -298,27 +279,15 @@ namespace RoslynTester.Helpers
                         {
                             var document = documents[i];
                             var tree = document.GetSyntaxTreeAsync().Result;
-                            if (tree == diag.Location.SourceTree)
+                            if (tree == diagnostic.Location.SourceTree)
                             {
-                                diagnostics.Add(diag);
+                                diagnostics.Add(diagnostic);
                             }
                         }
                     }
                 }
             }
 
-            var results = SortDiagnostics(diagnostics);
-            diagnostics.Clear();
-            return results;
-        }
-
-        /// <summary>
-        ///     Sort diagnostices by location in source document
-        /// </summary>
-        /// <param name="diagnostics">The list of Diagnostics to be sorted</param>
-        /// <returns>An IEnumerable containing the Diagnostics in order of Location</returns>
-        private static Diagnostic[] SortDiagnostics(IEnumerable<Diagnostic> diagnostics)
-        {
             return diagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();
         }
 
