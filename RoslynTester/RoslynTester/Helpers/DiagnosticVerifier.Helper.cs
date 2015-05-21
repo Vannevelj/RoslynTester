@@ -26,8 +26,6 @@ namespace RoslynTester.Helpers
         internal static string VisualBasicDefaultFilePath = DefaultFilePathPrefix + 0 + "." + VisualBasicDefaultExt;
         internal static string TestProjectName = "TestProject";
 
-        #region  Get Diagnostics
-
         /// <summary>
         ///     Given classes in the form of strings, their language, and an IDiagnosticAnlayzer to apply to it, return the
         ///     diagnostics found in the string after converting it to a document.
@@ -97,10 +95,6 @@ namespace RoslynTester.Helpers
         {
             return diagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();
         }
-
-        #endregion
-
-        #region Set up compilation and documents
 
         /// <summary>
         ///     Given an array of strings as soruces and a language, turn them into a project and return the documents and spans of
@@ -174,7 +168,5 @@ namespace RoslynTester.Helpers
             }
             return solution.GetProject(projectId);
         }
-
-        #endregion
     }
 }

@@ -12,8 +12,6 @@ namespace RoslynTester.Helpers
     /// </summary>
     public abstract partial class DiagnosticVerifier
     {
-        #region Formatting Diagnostics
-
         /// <summary>
         ///     Helper method to format a Diagnostic into an easily reasible string
         /// </summary>
@@ -68,10 +66,6 @@ namespace RoslynTester.Helpers
             return builder.ToString();
         }
 
-        #endregion
-
-        #region To be implemented by Test classes
-
         /// <summary>
         ///     Get the CSharp analyzer being tested - to be implemented in non-abstract class
         /// </summary>
@@ -87,10 +81,6 @@ namespace RoslynTester.Helpers
         {
             return null;
         }
-
-        #endregion
-
-        #region Verifier wrappers
 
         /// <summary>
         ///     Called to test a C# DiagnosticAnalyzer when applied on the single inputted string as a source
@@ -150,10 +140,6 @@ namespace RoslynTester.Helpers
             VerifyDiagnosticResults(diagnostics, analyzer, expected);
         }
 
-        #endregion
-
-        #region Actual comparisons and verifications
-
         /// <summary>
         ///     Checks each of the actual Diagnostics found and compares them with the corresponding DiagnosticResult in the array
         ///     of expected results.
@@ -172,8 +158,7 @@ namespace RoslynTester.Helpers
             {
                 var diagnosticsOutput = actualResults.Any() ? FormatDiagnostics(analyzer, actualResults.ToArray()) : "    NONE.";
 
-                Assert.IsTrue(false,
-                    string.Format("Mismatch between number of diagnostics returned, expected \"{0}\" actual \"{1}\"\r\n\r\nDiagnostics:\r\n{2}\r\n", expectedCount, actualCount, diagnosticsOutput));
+                Assert.Fail($"Mismatch between number of diagnostics returned, expected \"{expectedCount}\" actual \"{actualCount}\"\r\n\r\nDiagnostics:\r\n{diagnosticsOutput}\r\n");
             }
 
             for (var i = 0; i < expectedResults.Length; i++)
@@ -185,9 +170,7 @@ namespace RoslynTester.Helpers
                 {
                     if (actual.Location != Location.None)
                     {
-                        Assert.IsTrue(false,
-                            string.Format("Expected:\nA project diagnostic with No location\nActual:\n{0}",
-                                FormatDiagnostics(analyzer, actual)));
+                        Assert.Fail($"Expected:\nA project diagnostic with No location\nActual:\n{FormatDiagnostics(analyzer, actual)}");
                     }
                 }
                 else
@@ -197,10 +180,7 @@ namespace RoslynTester.Helpers
 
                     if (additionalLocations.Length != expected.Locations.Length - 1)
                     {
-                        Assert.IsTrue(false,
-                            string.Format("Expected {0} additional locations but got {1} for Diagnostic:\r\n    {2}\r\n",
-                                expected.Locations.Length - 1, additionalLocations.Length,
-                                FormatDiagnostics(analyzer, actual)));
+                        Assert.Fail($"Expected {expected.Locations.Length - 1} additional locations but got {additionalLocations.Length} for Diagnostic:\r\n    {FormatDiagnostics(analyzer, actual)}\r\n");
                     }
 
                     for (var j = 0; j < additionalLocations.Length; ++j)
@@ -211,23 +191,17 @@ namespace RoslynTester.Helpers
 
                 if (actual.Id != expected.Id)
                 {
-                    Assert.IsTrue(false,
-                        string.Format("Expected diagnostic id to be \"{0}\" was \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
-                            expected.Id, actual.Id, FormatDiagnostics(analyzer, actual)));
+                    Assert.Fail($"Expected diagnostic id to be \"{expected.Id}\" was \"{actual.Id}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer, actual)}\r\n");
                 }
 
                 if (actual.Severity != expected.Severity)
                 {
-                    Assert.IsTrue(false,
-                        string.Format("Expected diagnostic severity to be \"{0}\" was \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
-                            expected.Severity, actual.Severity, FormatDiagnostics(analyzer, actual)));
+                    Assert.Fail($"Expected diagnostic severity to be \"{expected.Severity}\" was \"{actual.Severity}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer, actual)}\r\n");
                 }
 
                 if (actual.GetMessage() != expected.Message)
                 {
-                    Assert.IsTrue(false,
-                        string.Format("Expected diagnostic message to be \"{0}\" was \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
-                            expected.Message, actual.GetMessage(), FormatDiagnostics(analyzer, actual)));
+                    Assert.Fail($"Expected diagnostic message to be \"{expected.Message}\" was \"{actual.GetMessage()}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer, actual)}\r\n");
                 }
             }
         }
@@ -245,8 +219,7 @@ namespace RoslynTester.Helpers
             var actualSpan = actual.GetLineSpan();
 
             Assert.IsTrue(actualSpan.Path == expected.Path || (actualSpan.Path != null && actualSpan.Path.Contains("Test0.") && expected.Path.Contains("Test.")),
-                string.Format("Expected diagnostic to be in file \"{0}\" was actually in file \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
-                    expected.Path, actualSpan.Path, FormatDiagnostics(analyzer, diagnostic)));
+                $"Expected diagnostic to be in file \"{expected.Path}\" was actually in file \"{actualSpan.Path}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer, diagnostic)}\r\n");
 
             var actualLinePosition = actualSpan.StartLinePosition;
 
@@ -255,9 +228,8 @@ namespace RoslynTester.Helpers
             {
                 if (actualLinePosition.Line + 1 != expected.Line)
                 {
-                    Assert.IsTrue(false,
-                        string.Format("Expected diagnostic to be on line \"{0}\" was actually on line \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
-                            expected.Line, actualLinePosition.Line + 1, FormatDiagnostics(analyzer, diagnostic)));
+                    Assert.Fail(
+                        $"Expected diagnostic to be on line \"{expected.Line}\" was actually on line \"{actualLinePosition.Line + 1}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer, diagnostic)}\r\n");
                 }
             }
 
@@ -266,13 +238,10 @@ namespace RoslynTester.Helpers
             {
                 if (actualLinePosition.Character + 1 != expected.Column)
                 {
-                    Assert.IsTrue(false,
-                        string.Format("Expected diagnostic to start at column \"{0}\" was actually at column \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
-                            expected.Column, actualLinePosition.Character + 1, FormatDiagnostics(analyzer, diagnostic)));
+                    Assert.Fail(
+                        $"Expected diagnostic to start at column \"{expected.Column}\" was actually at column \"{actualLinePosition.Character + 1}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer, diagnostic)}\r\n");
                 }
             }
         }
-
-        #endregion
     }
 }
