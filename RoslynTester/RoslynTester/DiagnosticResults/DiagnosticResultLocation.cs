@@ -7,10 +7,6 @@ namespace RoslynTester.DiagnosticResults
     /// </summary>
     public struct DiagnosticResultLocation
     {
-        public int? Column { get; }
-        public int? Line { get; }
-        public string FilePath { get; }
-
         public DiagnosticResultLocation(string filePath, int line, int column)
         {
             if (line < 0 || column < 0)
@@ -22,5 +18,9 @@ namespace RoslynTester.DiagnosticResults
             Line = line;
             Column = column;
         }
+
+        public int? Column { get; }
+        public int? Line { get; }
+        public string FilePath { get; }
     }
 }

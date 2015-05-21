@@ -17,12 +17,11 @@ namespace RoslynTester.Helpers
     /// </summary>
     public abstract class DiagnosticVerifier
     {
-        internal const string DefaultFilePathPrefix = "Test";
-        internal const string CSharpDefaultFileExt = "cs";
-        internal const string VisualBasicDefaultExt = "vb";
-        internal const string CSharpDefaultFilePath = DefaultFilePathPrefix + "0" + "." + CSharpDefaultFileExt;
-        internal const string VisualBasicDefaultFilePath = DefaultFilePathPrefix + "0" + "." + VisualBasicDefaultExt;
-        internal const string TestProjectName = "TestProject";
+        private const string FileName = "Test";
+        private const string CSharpFileExtension = ".cs";
+        private const string VisualBasicFileExtension = ".vb";
+        private const string ProjectName = "TestProject";
+        private const string FileNameTemplate = FileName + "{0}{1}";
         private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromAssembly(typeof (object).Assembly);
         private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromAssembly(typeof (Enumerable).Assembly);
         private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromAssembly(typeof (CSharpCompilation).Assembly);
@@ -58,7 +57,7 @@ namespace RoslynTester.Helpers
                             Assert.IsTrue(location.IsInSource,
                                 string.Format("Test base does not currently handle diagnostics in metadata locations. Diagnostic in metadata:\r\n", diagnostics[i]));
 
-                            var resultMethodName = diagnostics[i].Location.SourceTree.FilePath.EndsWith(".cs") ? "GetCSharpResultAt" : "GetBasicResultAt";
+                            var resultMethodName = diagnostics[i].Location.SourceTree.FilePath.EndsWith(CSharpFileExtension) ? "GetCSharpResultAt" : "GetBasicResultAt";
                             var linePosition = diagnostics[i].Location.GetLineSpan().StartLinePosition;
 
                             builder.AppendFormat("{0}({1}, {2}, {3}.{4})",
@@ -292,7 +291,7 @@ namespace RoslynTester.Helpers
         }
 
         /// <summary>
-        ///     Given an array of strings as soruces and a language, turn them into a project and return the documents and spans of
+        ///     Given an array of strings as sources and a language, turn them into a project and return the documents and spans of
         ///     it.
         /// </summary>
         /// <param name="sources">Classes in the form of strings</param>
@@ -303,11 +302,6 @@ namespace RoslynTester.Helpers
             if (language != LanguageNames.CSharp && language != LanguageNames.VisualBasic)
             {
                 throw new ArgumentException("Unsupported Language");
-            }
-
-            for (var i = 0; i < sources.Length; i++)
-            {
-                var fileName = language == LanguageNames.CSharp ? "Test" + i + ".cs" : "Test" + i + ".vb";
             }
 
             var project = CreateProject(sources, language);
@@ -338,29 +332,25 @@ namespace RoslynTester.Helpers
         /// <param name="sources">Classes in the form of strings</param>
         /// <param name="language">The language the source code is in</param>
         /// <returns>A Project created out of the Douments created from the source strings</returns>
-        private static Project CreateProject(string[] sources, string language = LanguageNames.CSharp)
+        private static Project CreateProject(IEnumerable<string> sources, string language = LanguageNames.CSharp)
         {
-            var fileNamePrefix = DefaultFilePathPrefix;
-            var fileExt = language == LanguageNames.CSharp ? CSharpDefaultFileExt : VisualBasicDefaultExt;
-
-            var projectId = ProjectId.CreateNewId(TestProjectName);
+            var extension = language == LanguageNames.CSharp ? CSharpFileExtension : VisualBasicFileExtension;
+            var projectId = ProjectId.CreateNewId(ProjectName);
 
             var solution = new AdhocWorkspace()
                 .CurrentSolution
-                .AddProject(projectId, TestProjectName, TestProjectName, language)
-                .AddMetadataReference(projectId, CorlibReference)
-                .AddMetadataReference(projectId, SystemCoreReference)
-                .AddMetadataReference(projectId, CSharpSymbolsReference)
-                .AddMetadataReference(projectId, CodeAnalysisReference);
+                .AddProject(projectId, ProjectName, ProjectName, language)
+                .AddMetadataReferences(projectId, new[] { CorlibReference, SystemCoreReference, CSharpSymbolsReference, CodeAnalysisReference });
 
             var count = 0;
             foreach (var source in sources)
             {
-                var newFileName = fileNamePrefix + count + "." + fileExt;
+                var newFileName = string.Format(FileNameTemplate, count, extension);
                 var documentId = DocumentId.CreateNewId(projectId, newFileName);
                 solution = solution.AddDocument(documentId, newFileName, SourceText.From(source));
                 count++;
             }
+
             return solution.GetProject(projectId);
         }
     }
