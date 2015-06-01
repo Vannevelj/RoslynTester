@@ -13,57 +13,25 @@ using NUnit.Framework;
 namespace RoslynTester.Helpers
 {
     /// <summary>
-    ///     Superclass of all Unit tests made for diagnostics with codefixes.
+    ///     Base class for concrete classes separated by language of all Unit tests made for diagnostics with codefixes.
     ///     Contains methods used to verify correctness of codefixes
     /// </summary>
-    public abstract class CodeFixVerifier : DiagnosticVerifier
+    internal class CodeFixVerifier
     {
-        /// <summary>
-        ///     Returns the codefix being tested (C#) - to be implemented in non-abstract class
-        /// </summary>
-        /// <returns>The CodeFixProvider to be used for CSharp code</returns>
-        protected virtual CodeFixProvider GetCSharpCodeFixProvider()
-        {
-            return null;
-        }
+        private CodeFixProvider CodeFixProvider { get; set; }
+        private DiagnosticAnalyzer DiagnosticAnalyzer { get; set; }
 
-        /// <summary>
-        ///     Returns the codefix being tested (VB) - to be implemented in non-abstract class
-        /// </summary>
-        /// <returns>The CodeFixProvider to be used for VisualBasic code</returns>
-        protected virtual CodeFixProvider GetVisualBasicCodeFixProvider()
+        internal void VerifyFix(CodeFixProvider codeFixProvider,
+                                DiagnosticAnalyzer diagnosticAnalyzer,
+                                string language,
+                                string oldSource,
+                                string newSource,
+                                int? codeFixIndex = null,
+                                bool allowNewCompilerDiagnostics = false)
         {
-            return null;
-        }
-
-        /// <summary>
-        ///     Called to test a C# codefix when applied on the inputted string as a source
-        /// </summary>
-        /// <param name="oldSource">A class in the form of a string before the CodeFix was applied to it</param>
-        /// <param name="newSource">A class in the form of a string after the CodeFix was applied to it</param>
-        /// <param name="codeFixIndex">Index determining which codefix to apply if there are multiple</param>
-        /// <param name="allowNewCompilerDiagnostics">
-        ///     A bool controlling whether or not the test will fail if the CodeFix
-        ///     introduces other warnings after being applied
-        /// </param>
-        protected void VerifyCSharpFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
-        {
-            VerifyFix(LanguageNames.CSharp, GetCSharpDiagnosticAnalyzer(), GetCSharpCodeFixProvider(), oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
-        }
-
-        /// <summary>
-        ///     Called to test a VB codefix when applied on the inputted string as a source
-        /// </summary>
-        /// <param name="oldSource">A class in the form of a string before the CodeFix was applied to it</param>
-        /// <param name="newSource">A class in the form of a string after the CodeFix was applied to it</param>
-        /// <param name="codeFixIndex">Index determining which codefix to apply if there are multiple</param>
-        /// <param name="allowNewCompilerDiagnostics">
-        ///     A bool controlling whether or not the test will fail if the CodeFix
-        ///     introduces other warnings after being applied
-        /// </param>
-        protected void VerifyBasicFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
-        {
-            VerifyFix(LanguageNames.VisualBasic, GetVisualBasicDiagnosticAnalyzer(), GetVisualBasicCodeFixProvider(), oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
+            CodeFixProvider = codeFixProvider;
+            DiagnosticAnalyzer = diagnosticAnalyzer;
+            VerifyFix(language, DiagnosticAnalyzer, CodeFixProvider, oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
         }
 
         /// <summary>
@@ -95,8 +63,8 @@ namespace RoslynTester.Helpers
                 throw new ArgumentNullException(nameof(codeFixProvider));
             }
 
-            var document = CreateDocument(oldSource, language);
-            var analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, document);
+            var document = DiagnosticVerifier.CreateDocument(oldSource, language);
+            var analyzerDiagnostics = DiagnosticVerifier.GetSortedDiagnosticsFromDocuments(analyzer, document);
             var compilerDiagnostics = GetCompilerDiagnostics(document).ToArray();
             var attempts = analyzerDiagnostics.Length;
 
@@ -118,7 +86,7 @@ namespace RoslynTester.Helpers
                 }
 
                 document = ApplyFix(document, actions.ElementAt(0));
-                analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, document);
+                analyzerDiagnostics = DiagnosticVerifier.GetSortedDiagnosticsFromDocuments(analyzer, document);
 
                 var newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document));
 
@@ -143,7 +111,7 @@ namespace RoslynTester.Helpers
 
             //after applying all of the code fixes, compare the resulting string to the inputted one
             var actual = GetStringFromDocument(document);
-            Assert.AreEqual(newSource, actual);
+            Assert.AreEqual(newSource, actual, $"RESULT:\n\n{document.GetSyntaxRootAsync().Result.ToFullString()}");
         }
 
         /// <summary>
