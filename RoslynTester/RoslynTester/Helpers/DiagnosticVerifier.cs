@@ -95,13 +95,21 @@ namespace RoslynTester.Helpers
         protected abstract void VerifyDiagnostic(string[] sources, params DiagnosticResult[] expected);
 
         /// <summary>
+        ///     Called to test a DiagnosticAnalyzer when applied on the inputted strings as a source
+        ///     Note: input a DiagnosticResult for each Diagnostic expected
+        /// </summary>
+        /// <param name="source">A string representing the document to run the analyzer on</param>
+        /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
+        protected abstract void VerifyDiagnostic(string source, params DiagnosticResult[] expected);
+
+        /// <summary>
         ///     General method that gets a collection of actual diagnostics found in the source after the analyzer is run,
         ///     then verifies each of them.
         /// </summary>
         /// <param name="sources">An array of strings to create source documents from to run teh analyzers on</param>
         /// <param name="language">The language of the classes represented by the source strings</param>
         /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
-        protected internal void VerifyDiagnostics(string[] sources, string language, params DiagnosticResult[] expected)
+        internal void VerifyDiagnostics(string[] sources, string language, params DiagnosticResult[] expected)
         {
             var diagnostics = GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer, GetDocuments(sources, language));
             VerifyDiagnosticResults(diagnostics, DiagnosticAnalyzer, expected);
@@ -206,7 +214,7 @@ namespace RoslynTester.Helpers
         /// <param name="analyzer">The analyzer to run on the documents</param>
         /// <param name="documents">The Documents that the analyzer will be run on</param>
         /// <returns>An IEnumerable of Diagnostics that surfaced in the source code, sorted by Location</returns>
-        protected internal static Diagnostic[] GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, params Document[] documents)
+        internal static Diagnostic[] GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, params Document[] documents)
         {
             var diagnostics = new List<Diagnostic>();
             foreach (var project in documents.Select(x => x.Project))
@@ -244,7 +252,7 @@ namespace RoslynTester.Helpers
         /// <param name="sources">Classes in the form of strings</param>
         /// <param name="language">The language the source code is in</param>
         /// <returns>A Tuple containing the Documents produced from the sources and thier TextSpans if relevant</returns>
-        protected internal static Document[] GetDocuments(string[] sources, string language)
+        internal static Document[] GetDocuments(string[] sources, string language)
         {
             if (language != LanguageNames.CSharp && language != LanguageNames.VisualBasic)
             {
@@ -268,7 +276,7 @@ namespace RoslynTester.Helpers
         /// <param name="source">Classes in the form of a string</param>
         /// <param name="language">The language the source code is in</param>
         /// <returns>A Document created from the source string</returns>
-        protected internal static Document CreateDocument(string source, string language = LanguageNames.CSharp)
+        internal static Document CreateDocument(string source, string language = LanguageNames.CSharp)
         {
             return CreateProject(new[] { source }, language).Documents.First();
         }

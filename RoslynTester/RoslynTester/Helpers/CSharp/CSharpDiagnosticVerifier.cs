@@ -9,5 +9,10 @@ namespace RoslynTester.Helpers.CSharp
         {
             VerifyDiagnostics(sources, LanguageNames.CSharp, expected);
         }
+
+        protected override void VerifyDiagnostic(string source, params DiagnosticResult[] expected)
+        {
+            VerifyDiagnostics(new[] { source }, LanguageNames.CSharp, expected);
+        }
     }
 }

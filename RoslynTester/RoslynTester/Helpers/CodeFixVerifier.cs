@@ -16,18 +16,21 @@ namespace RoslynTester.Helpers
     ///     Base class for concrete classes separated by language of all Unit tests made for diagnostics with codefixes.
     ///     Contains methods used to verify correctness of codefixes
     /// </summary>
-    public abstract class CodeFixVerifier : DiagnosticVerifier
+    internal class CodeFixVerifier
     {
-        /// <summary>
-        ///     Returns the codefix being tested - to be implemented in non-abstract class
-        /// </summary>
-        /// <returns>The CodeFixProvider to be used for VisualBasic code</returns>
-        protected abstract CodeFixProvider CodeFixProvider { get; }
+        private CodeFixProvider CodeFixProvider { get; set; }
+        private DiagnosticAnalyzer DiagnosticAnalyzer { get; set; }
 
-        protected abstract void VerifyFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false);
-
-        protected void VerifyFix(string language, string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
+        internal void VerifyFix(CodeFixProvider codeFixProvider,
+                                DiagnosticAnalyzer diagnosticAnalyzer,
+                                string language,
+                                string oldSource,
+                                string newSource,
+                                int? codeFixIndex = null,
+                                bool allowNewCompilerDiagnostics = false)
         {
+            CodeFixProvider = codeFixProvider;
+            DiagnosticAnalyzer = diagnosticAnalyzer;
             VerifyFix(language, DiagnosticAnalyzer, CodeFixProvider, oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
         }
 
@@ -60,8 +63,8 @@ namespace RoslynTester.Helpers
                 throw new ArgumentNullException(nameof(codeFixProvider));
             }
 
-            var document = CreateDocument(oldSource, language);
-            var analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, document);
+            var document = DiagnosticVerifier.CreateDocument(oldSource, language);
+            var analyzerDiagnostics = DiagnosticVerifier.GetSortedDiagnosticsFromDocuments(analyzer, document);
             var compilerDiagnostics = GetCompilerDiagnostics(document).ToArray();
             var attempts = analyzerDiagnostics.Length;
 
@@ -83,7 +86,7 @@ namespace RoslynTester.Helpers
                 }
 
                 document = ApplyFix(document, actions.ElementAt(0));
-                analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, document);
+                analyzerDiagnostics = DiagnosticVerifier.GetSortedDiagnosticsFromDocuments(analyzer, document);
 
                 var newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document));
 

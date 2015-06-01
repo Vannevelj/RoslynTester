@@ -9,5 +9,10 @@ namespace RoslynTester.Helpers.VisualBasic
         {
             VerifyDiagnostics(sources, LanguageNames.VisualBasic, expected);
         }
+
+        protected override void VerifyDiagnostic(string source, params DiagnosticResult[] expected)
+        {
+            VerifyDiagnostics(new[] { source }, LanguageNames.VisualBasic, expected);
+        }
     }
 }

@@ -1,9 +1,18 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeFixes;
 
 namespace RoslynTester.Helpers.VisualBasic
 {
-    public abstract class VisualBasicCodeFixVerifier : CodeFixVerifier
+    public abstract class VisualBasicCodeFixVerifier : VisualBasicDiagnosticVerifier
     {
+        private readonly CodeFixVerifier _codeFixVerifier = new CodeFixVerifier();
+
+        /// <summary>
+        ///     Returns the codefix being tested - to be implemented in non-abstract class
+        /// </summary>
+        /// <returns>The CodeFixProvider to be used</returns>
+        protected abstract CodeFixProvider CodeFixProvider { get; }
+
         /// <summary>
         ///     Called to test a VB codefix when applied on the inputted string as a source
         /// </summary>
@@ -14,9 +23,9 @@ namespace RoslynTester.Helpers.VisualBasic
         ///     A bool controlling whether or not the test will fail if the CodeFix
         ///     introduces other warnings after being applied
         /// </param>
-        protected override void VerifyFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
+        protected void VerifyFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
         {
-            VerifyFix(LanguageNames.VisualBasic, oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
+            _codeFixVerifier.VerifyFix(CodeFixProvider, DiagnosticAnalyzer, LanguageNames.CSharp, oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
         }
     }
 }
