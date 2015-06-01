@@ -28,6 +28,11 @@ namespace RoslynTester.Helpers
         private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromAssembly(typeof (Compilation).Assembly);
 
         /// <summary>
+        ///     Get the analyzer being tested - to be implemented in non-abstract class
+        /// </summary>
+        protected abstract DiagnosticAnalyzer DiagnosticAnalyzer { get; }
+
+        /// <summary>
         ///     Helper method to format a Diagnostic into an easily reasible string
         /// </summary>
         /// <param name="analyzer">The analyzer that this Verifer tests</param>
@@ -82,64 +87,12 @@ namespace RoslynTester.Helpers
         }
 
         /// <summary>
-        ///     Get the CSharp analyzer being tested - to be implemented in non-abstract class
-        /// </summary>
-        protected virtual DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()
-        {
-            return null;
-        }
-
-        /// <summary>
-        ///     Get the Visual Basic analyzer being tested (C#) - to be implemented in non-abstract class
-        /// </summary>
-        protected virtual DiagnosticAnalyzer GetVisualBasicDiagnosticAnalyzer()
-        {
-            return null;
-        }
-
-        /// <summary>
-        ///     Called to test a C# DiagnosticAnalyzer when applied on the single inputted string as a source
-        ///     Note: input a DiagnosticResult for each Diagnostic expected
-        /// </summary>
-        /// <param name="source">A class in the form of a string to run the analyzer on</param>
-        /// <param name="expected"> DiagnosticResults that should appear after the analyzer is run on the source</param>
-        protected void VerifyCSharpDiagnostic(string source, params DiagnosticResult[] expected)
-        {
-            VerifyCSharpDiagnostic(new[] { source }, expected);
-        }
-
-        /// <summary>
-        ///     Called to test a C# DiagnosticAnalyzer when applied on the inputted strings as a source
+        ///     Called to test a DiagnosticAnalyzer when applied on the inputted strings as a source
         ///     Note: input a DiagnosticResult for each Diagnostic expected
         /// </summary>
         /// <param name="sources">An array of strings to create source documents from to run the analyzers on</param>
         /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
-        protected void VerifyCSharpDiagnostic(string[] sources, params DiagnosticResult[] expected)
-        {
-            VerifyDiagnostics(sources, LanguageNames.CSharp, GetCSharpDiagnosticAnalyzer(), expected);
-        }
-
-        /// <summary>
-        ///     Called to test a VB DiagnosticAnalyzer when applied on the single inputted string as a source
-        ///     Note: input a DiagnosticResult for each Diagnostic expected
-        /// </summary>
-        /// <param name="source">A class in the form of a string to run the analyzer on</param>
-        /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the source</param>
-        protected void VerifyVisualBasicDiagnostic(string source, params DiagnosticResult[] expected)
-        {
-            VerifyVisualBasicDiagnostic(new[] { source }, expected);
-        }
-
-        /// <summary>
-        ///     Called to test a VB DiagnosticAnalyzer when applied on the inputted strings as a source
-        ///     Note: input a DiagnosticResult for each Diagnostic expected
-        /// </summary>
-        /// <param name="sources">An array of strings to create source documents from to run the analyzers on</param>
-        /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
-        protected void VerifyVisualBasicDiagnostic(string[] sources, params DiagnosticResult[] expected)
-        {
-            VerifyDiagnostics(sources, LanguageNames.VisualBasic, GetVisualBasicDiagnosticAnalyzer(), expected);
-        }
+        protected abstract void VerifyDiagnostic(string[] sources, params DiagnosticResult[] expected);
 
         /// <summary>
         ///     General method that gets a collection of actual diagnostics found in the source after the analyzer is run,
@@ -147,17 +100,11 @@ namespace RoslynTester.Helpers
         /// </summary>
         /// <param name="sources">An array of strings to create source documents from to run teh analyzers on</param>
         /// <param name="language">The language of the classes represented by the source strings</param>
-        /// <param name="analyzer">The analyzer to be run on the source code</param>
         /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
-        private void VerifyDiagnostics(string[] sources, string language, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expected)
+        protected internal void VerifyDiagnostics(string[] sources, string language, params DiagnosticResult[] expected)
         {
-            if (analyzer == null)
-            {
-                throw new ArgumentNullException(nameof(analyzer));
-            }
-
-            var diagnostics = GetSortedDiagnosticsFromDocuments(analyzer, GetDocuments(sources, language));
-            VerifyDiagnosticResults(diagnostics, analyzer, expected);
+            var diagnostics = GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer, GetDocuments(sources, language));
+            VerifyDiagnosticResults(diagnostics, DiagnosticAnalyzer, expected);
         }
 
         /// <summary>
@@ -259,7 +206,7 @@ namespace RoslynTester.Helpers
         /// <param name="analyzer">The analyzer to run on the documents</param>
         /// <param name="documents">The Documents that the analyzer will be run on</param>
         /// <returns>An IEnumerable of Diagnostics that surfaced in the source code, sorted by Location</returns>
-        protected static Diagnostic[] GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, params Document[] documents)
+        protected internal static Diagnostic[] GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, params Document[] documents)
         {
             var diagnostics = new List<Diagnostic>();
             foreach (var project in documents.Select(x => x.Project))
@@ -297,7 +244,7 @@ namespace RoslynTester.Helpers
         /// <param name="sources">Classes in the form of strings</param>
         /// <param name="language">The language the source code is in</param>
         /// <returns>A Tuple containing the Documents produced from the sources and thier TextSpans if relevant</returns>
-        private static Document[] GetDocuments(string[] sources, string language)
+        protected internal static Document[] GetDocuments(string[] sources, string language)
         {
             if (language != LanguageNames.CSharp && language != LanguageNames.VisualBasic)
             {
@@ -321,7 +268,7 @@ namespace RoslynTester.Helpers
         /// <param name="source">Classes in the form of a string</param>
         /// <param name="language">The language the source code is in</param>
         /// <returns>A Document created from the source string</returns>
-        protected static Document CreateDocument(string source, string language = LanguageNames.CSharp)
+        protected internal static Document CreateDocument(string source, string language = LanguageNames.CSharp)
         {
             return CreateProject(new[] { source }, language).Documents.First();
         }

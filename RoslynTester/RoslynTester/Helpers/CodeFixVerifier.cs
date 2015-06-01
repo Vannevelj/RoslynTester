@@ -13,57 +13,22 @@ using NUnit.Framework;
 namespace RoslynTester.Helpers
 {
     /// <summary>
-    ///     Superclass of all Unit tests made for diagnostics with codefixes.
+    ///     Base class for concrete classes separated by language of all Unit tests made for diagnostics with codefixes.
     ///     Contains methods used to verify correctness of codefixes
     /// </summary>
     public abstract class CodeFixVerifier : DiagnosticVerifier
     {
         /// <summary>
-        ///     Returns the codefix being tested (C#) - to be implemented in non-abstract class
-        /// </summary>
-        /// <returns>The CodeFixProvider to be used for CSharp code</returns>
-        protected virtual CodeFixProvider GetCSharpCodeFixProvider()
-        {
-            return null;
-        }
-
-        /// <summary>
-        ///     Returns the codefix being tested (VB) - to be implemented in non-abstract class
+        ///     Returns the codefix being tested - to be implemented in non-abstract class
         /// </summary>
         /// <returns>The CodeFixProvider to be used for VisualBasic code</returns>
-        protected virtual CodeFixProvider GetVisualBasicCodeFixProvider()
-        {
-            return null;
-        }
+        protected abstract CodeFixProvider CodeFixProvider { get; }
 
-        /// <summary>
-        ///     Called to test a C# codefix when applied on the inputted string as a source
-        /// </summary>
-        /// <param name="oldSource">A class in the form of a string before the CodeFix was applied to it</param>
-        /// <param name="newSource">A class in the form of a string after the CodeFix was applied to it</param>
-        /// <param name="codeFixIndex">Index determining which codefix to apply if there are multiple</param>
-        /// <param name="allowNewCompilerDiagnostics">
-        ///     A bool controlling whether or not the test will fail if the CodeFix
-        ///     introduces other warnings after being applied
-        /// </param>
-        protected void VerifyCSharpFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
-        {
-            VerifyFix(LanguageNames.CSharp, GetCSharpDiagnosticAnalyzer(), GetCSharpCodeFixProvider(), oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
-        }
+        protected abstract void VerifyFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false);
 
-        /// <summary>
-        ///     Called to test a VB codefix when applied on the inputted string as a source
-        /// </summary>
-        /// <param name="oldSource">A class in the form of a string before the CodeFix was applied to it</param>
-        /// <param name="newSource">A class in the form of a string after the CodeFix was applied to it</param>
-        /// <param name="codeFixIndex">Index determining which codefix to apply if there are multiple</param>
-        /// <param name="allowNewCompilerDiagnostics">
-        ///     A bool controlling whether or not the test will fail if the CodeFix
-        ///     introduces other warnings after being applied
-        /// </param>
-        protected void VerifyBasicFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
+        protected void VerifyFix(string language, string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
         {
-            VerifyFix(LanguageNames.VisualBasic, GetVisualBasicDiagnosticAnalyzer(), GetVisualBasicCodeFixProvider(), oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
+            VerifyFix(language, DiagnosticAnalyzer, CodeFixProvider, oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
         }
 
         /// <summary>
