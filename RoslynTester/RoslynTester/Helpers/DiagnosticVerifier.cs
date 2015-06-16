@@ -22,10 +22,10 @@ namespace RoslynTester.Helpers
         private const string VisualBasicFileExtension = ".vb";
         private const string ProjectName = "TestProject";
         private const string FileNameTemplate = FileName + "{0}{1}";
-        private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromAssembly(typeof (object).Assembly);
-        private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromAssembly(typeof (Enumerable).Assembly);
-        private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromAssembly(typeof (CSharpCompilation).Assembly);
-        private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromAssembly(typeof (Compilation).Assembly);
+        private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
+        private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location);
+        private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).Assembly.Location);
+        private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
 
         /// <summary>
         ///     Get the analyzer being tested - to be implemented in non-abstract class
