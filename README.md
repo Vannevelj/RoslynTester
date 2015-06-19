@@ -6,6 +6,9 @@ A library that will help you unit test your Roslyn analyzers. This package conta
 
 https://www.nuget.org/packages/RoslynTester/
 
+[![Build status](https://ci.appveyor.com/api/projects/status/3x918k5jre5imjjn?svg=true)](https://ci.appveyor.com/project/Vannevelj/roslyntester)
+[![Test status](http://teststatusbadge.azurewebsites.net/api/status/Vannevelj/roslyntester)](https://ci.appveyor.com/project/Vannevelj/roslyntester)
+
 
 ## Why should I use this?
 
