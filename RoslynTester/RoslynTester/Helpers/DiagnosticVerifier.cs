@@ -17,15 +17,21 @@ namespace RoslynTester.Helpers
     /// </summary>
     public abstract class DiagnosticVerifier
     {
-        private const string FileName = "Test";
-        private const string CSharpFileExtension = ".cs";
-        private const string VisualBasicFileExtension = ".vb";
-        private const string ProjectName = "TestProject";
-        private const string FileNameTemplate = FileName + "{0}{1}";
-        private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromAssembly(typeof (object).Assembly);
-        private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromAssembly(typeof (Enumerable).Assembly);
-        private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromAssembly(typeof (CSharpCompilation).Assembly);
         private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromAssembly(typeof (Compilation).Assembly);
+        private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromAssembly(typeof (object).Assembly);
+        private const string CSharpFileExtension = ".cs";
+        private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromAssembly(typeof (CSharpCompilation).Assembly);
+        private const string FileName = "Test";
+        private const string FileNameTemplate = FileName + "{0}{1}";
+        private const string ProjectName = "TestProject";
+        private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromAssembly(typeof (Enumerable).Assembly);
+        private const string VisualBasicFileExtension = ".vb";
+        private readonly string _languageName;
+
+        public DiagnosticVerifier(string languageName)
+        {
+            _languageName = languageName;
+        }
 
         /// <summary>
         ///     Get the analyzer being tested - to be implemented in non-abstract class
@@ -92,7 +98,21 @@ namespace RoslynTester.Helpers
         /// </summary>
         /// <param name="sources">An array of strings to create source documents from to run the analyzers on</param>
         /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
-        protected abstract void VerifyDiagnostic(string[] sources, params DiagnosticResult[] expected);
+        protected void VerifyDiagnostic(string[] sources, params DiagnosticResult[] expected)
+        {
+            VerifyDiagnostics(sources, _languageName, expected);
+        }
+
+        /// <summary>
+        ///     Called to test a DiagnosticAnalyzer when applied on the inputted strings as a source
+        ///     Note: input a DiagnosticResult for each Diagnostic expected
+        /// </summary>
+        /// <param name="sources">An array of strings to create source documents from to run the analyzers on</param>
+        /// <param name="expected">Diagnostic messages that should appear after the analyzer is run on the sources</param>
+        protected void VerifyDiagnostic(string[] sources, params string[] expected)
+        {
+            VerifyDiagnostics(sources, LanguageNames.CSharp, expected);
+        }
 
         /// <summary>
         ///     Called to test a DiagnosticAnalyzer when applied on the inputted strings as a source
@@ -100,7 +120,39 @@ namespace RoslynTester.Helpers
         /// </summary>
         /// <param name="source">A string representing the document to run the analyzer on</param>
         /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
-        protected abstract void VerifyDiagnostic(string source, params DiagnosticResult[] expected);
+        protected void VerifyDiagnostic(string source, params DiagnosticResult[] expected)
+        {
+            VerifyDiagnostics(new[] { source }, LanguageNames.CSharp, expected);
+        }
+
+        /// <summary>
+        ///     Called to test a DiagnosticAnalyzer when applied on the inputted strings as a source
+        ///     Note: input a DiagnosticResult for each Diagnostic expected
+        /// </summary>
+        /// <param name="source">A string representing the document to run the analyzer on</param>
+        /// <param name="expected">Diagnostic messages that should appear after the analyzer is run on the sources</param>
+        protected void VerifyDiagnostic(string source, params string[] expected)
+        {
+            VerifyDiagnostics(new[] { source }, LanguageNames.CSharp, expected);
+        }
+
+        /// <summary>
+        ///     Verifies that no diagnostic is triggered.
+        /// </summary>
+        /// <param name="source">A string representing the document to run the analyzer on</param>
+        protected void VerifyDiagnostic(string source)
+        {
+            VerifyDiagnostics(new[] { source }, LanguageNames.CSharp, new string[] { });
+        }
+
+        /// <summary>
+        ///     Verifies that no diagnostic is triggered.
+        /// </summary>
+        /// <param name="sources">An array of strings representing the documents</param>
+        protected void VerifyDiagnostic(string[] sources)
+        {
+            VerifyDiagnostics(sources, LanguageNames.CSharp, new string[] { });
+        }
 
         /// <summary>
         ///     General method that gets a collection of actual diagnostics found in the source after the analyzer is run,
@@ -109,7 +161,20 @@ namespace RoslynTester.Helpers
         /// <param name="sources">An array of strings to create source documents from to run teh analyzers on</param>
         /// <param name="language">The language of the classes represented by the source strings</param>
         /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
-        internal void VerifyDiagnostics(string[] sources, string language, params DiagnosticResult[] expected)
+        private void VerifyDiagnostics(string[] sources, string language, params DiagnosticResult[] expected)
+        {
+            var diagnostics = GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer, GetDocuments(sources, language));
+            VerifyDiagnosticResults(diagnostics, DiagnosticAnalyzer, expected);
+        }
+
+        /// <summary>
+        ///     General method that gets a collection of actual diagnostics found in the source after the analyzer is run,
+        ///     then verifies each of them.
+        /// </summary>
+        /// <param name="sources">An array of strings to create source documents from to run teh analyzers on</param>
+        /// <param name="language">The language of the classes represented by the source strings</param>
+        /// <param name="expected">Diagnostic messages that should appear after the analyzer is run on the sources</param>
+        private void VerifyDiagnostics(string[] sources, string language, params string[] expected)
         {
             var diagnostics = GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer, GetDocuments(sources, language));
             VerifyDiagnosticResults(diagnostics, DiagnosticAnalyzer, expected);
@@ -123,7 +188,7 @@ namespace RoslynTester.Helpers
         /// </summary>
         /// <param name="actualResults">The Diagnostics found by the compiler after running the analyzer on the source code</param>
         /// <param name="analyzer">The analyzer that was being run on the sources</param>
-        /// <param name="expectedResults">Diagnsotic Results that should have appeared in the code</param>
+        /// <param name="expectedResults">Diagnostic results that should have appeared in the code</param>
         private static void VerifyDiagnosticResults(IEnumerable<Diagnostic> actualResults, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expectedResults)
         {
             var expectedCount = expectedResults.Count();
@@ -167,6 +232,39 @@ namespace RoslynTester.Helpers
                     var expectedLocation = expected.Locations[j];
                     var actualLocation = actualLocations[j];
                     VerifyDiagnosticLocation(analyzer, actual, actualLocation, expectedLocation);
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Checks each of the actual Diagnostics found and compares them with the corresponding DiagnosticResult in the array
+        ///     of expected results.
+        ///     Diagnostics are considered equal only if the DiagnosticResultLocation, Id, Severity, and Message of the
+        ///     DiagnosticResult match the actual diagnostic.
+        /// </summary>
+        /// <param name="actualResults">The Diagnostics found by the compiler after running the analyzer on the source code</param>
+        /// <param name="analyzer">The analyzer that was being run on the sources</param>
+        /// <param name="expectedResults">Diagnostic messages that should have appeared in the code</param>
+        private static void VerifyDiagnosticResults(IEnumerable<Diagnostic> actualResults, DiagnosticAnalyzer analyzer, params string[] expectedResults)
+        {
+            var expectedCount = expectedResults.Count();
+            var results = actualResults.ToArray();
+            var actualCount = results.Length;
+
+            if (expectedCount != actualCount)
+            {
+                var diagnosticsOutput = results.Any() ? FormatDiagnostics(analyzer, results) : "NONE.";
+                Assert.Fail($"Mismatch between number of diagnostics returned, expected \"{expectedCount}\" actual \"{actualCount}\"\r\n\r\nDiagnostics:\r\n{diagnosticsOutput}\r\n");
+            }
+
+            for (var i = 0; i < expectedResults.Length; i++)
+            {
+                var actual = results[i];
+                var expected = expectedResults[i];
+
+                if (actual.GetMessage() != expected)
+                {
+                    Assert.Fail($"Expected diagnostic message to be \"{expected}\" was \"{actual.GetMessage()}\"\r\n\r\nDiagnostic:\r\n{FormatDiagnostics(analyzer, actual)}\r\n");
                 }
             }
         }
@@ -252,7 +350,7 @@ namespace RoslynTester.Helpers
         /// <param name="sources">Classes in the form of strings</param>
         /// <param name="language">The language the source code is in</param>
         /// <returns>A Tuple containing the Documents produced from the sources and thier TextSpans if relevant</returns>
-        internal static Document[] GetDocuments(string[] sources, string language)
+        private static Document[] GetDocuments(string[] sources, string language)
         {
             if (language != LanguageNames.CSharp && language != LanguageNames.VisualBasic)
             {

@@ -11,10 +11,11 @@ namespace Tests.Tests
     public class SampleAnalyzerTests : CSharpCodeFixVerifier
     {
         protected override CodeFixProvider CodeFixProvider => new TestCodeFix();
+
         protected override DiagnosticAnalyzer DiagnosticAnalyzer => new TestAnalyzer();
 
         [TestMethod]
-        public void AsyncMethodWithoutAsyncSuffixAnalyzer_WithAsyncKeywordAndNoSuffix_InvokesWarning()
+        public void Analyzer_With_LocationDiagnostic()
         {
             var original = @"
     using System;
@@ -65,9 +66,25 @@ namespace Tests.Tests
         }
 
         [TestMethod]
-        public void AsyncMethodWithoutAsyncSuffixAnalyzer_WithAsyncKeywordAndSuffix_DoesNotDisplayWarning()
+        public void Analyzer_With_MessageDiagnostic()
         {
             var original = @"
+    using System;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    namespace ConsoleApplication1
+    {
+        class MyClass
+        {   
+            async Task Method()
+            {
+                
+            }
+        }
+    }";
+
+            var result = @"
     using System;
     using System.Text;
     using System.Threading.Tasks;
@@ -82,11 +99,13 @@ namespace Tests.Tests
             }
         }
     }";
-            VerifyDiagnostic(original);
+
+            VerifyDiagnostic(original, string.Format(TestAnalyzer.Message, "Method"));
+            VerifyFix(original, result);
         }
 
         [TestMethod]
-        public void AsyncMethodWithoutAsyncSuffixAnalyzer_WithoutAsyncKeywordAndSuffix_DoesNotDisplayWarning()
+        public void Analyzer_Without_Diagnostic()
         {
             var original = @"
     using System;
@@ -97,7 +116,7 @@ namespace Tests.Tests
     {
         class MyClass
         {   
-            void Method()
+            async Task MethodAsync()
             {
                 
             }

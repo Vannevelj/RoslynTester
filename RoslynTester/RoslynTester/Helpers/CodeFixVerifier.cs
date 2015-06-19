@@ -19,6 +19,7 @@ namespace RoslynTester.Helpers
     internal class CodeFixVerifier
     {
         private CodeFixProvider CodeFixProvider { get; set; }
+
         private DiagnosticAnalyzer DiagnosticAnalyzer { get; set; }
 
         internal void VerifyFix(CodeFixProvider codeFixProvider,

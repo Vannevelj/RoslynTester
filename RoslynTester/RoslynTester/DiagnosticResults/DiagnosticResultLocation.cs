@@ -20,7 +20,9 @@ namespace RoslynTester.DiagnosticResults
         }
 
         public int? Column { get; }
+
         public int? Line { get; }
+
         public string FilePath { get; }
     }
 }
