@@ -17,14 +17,14 @@ namespace RoslynTester.Helpers
     /// </summary>
     public abstract class DiagnosticVerifier
     {
-        private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromAssembly(typeof (Compilation).Assembly);
-        private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromAssembly(typeof (object).Assembly);
+        private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof (Compilation).Assembly.Location);
+        private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof (object).Assembly.Location);
         private const string CSharpFileExtension = ".cs";
-        private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromAssembly(typeof (CSharpCompilation).Assembly);
+        private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof (CSharpCompilation).Assembly.Location);
         private const string FileName = "Test";
         private const string FileNameTemplate = FileName + "{0}{1}";
         private const string ProjectName = "TestProject";
-        private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromAssembly(typeof (Enumerable).Assembly);
+        private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof (Enumerable).Assembly.Location);
         private const string VisualBasicFileExtension = ".vb";
         private readonly string _languageName;
 
