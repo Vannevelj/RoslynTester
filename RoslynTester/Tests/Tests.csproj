@@ -108,8 +108,11 @@
   <ItemGroup>
     <Compile Include="SampleAnalyzer\TestAnalyzer.cs" />
     <Compile Include="SampleAnalyzer\TestCodeFix.cs" />
+    <Compile Include="SampleAnalyzer_FixIntroducesNewDiagnostic\SampleAnalyzer_FixIntroducesNewDiagnosticAnalyzer.cs" />
+    <Compile Include="SampleAnalyzer_FixIntroducesNewDiagnostic\SampleAnalyzer_FixIntroducesNewDiagnosticCodeFix.cs" />
     <Compile Include="Tests\SampleAnalyzerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tests\SampleAnalyzerFixIntroducesNewDiagnosticTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

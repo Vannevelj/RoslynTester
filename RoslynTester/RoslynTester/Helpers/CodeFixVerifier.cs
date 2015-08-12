@@ -23,6 +23,39 @@ namespace RoslynTester.Helpers
         private DiagnosticAnalyzer DiagnosticAnalyzer { get; set; }
 
         internal void VerifyFix(CodeFixProvider codeFixProvider,
+                        DiagnosticAnalyzer diagnosticAnalyzer,
+                        string language,
+                        string oldSource,
+                        string newSource,
+                        int? codeFixIndex = null,
+                        string[] allowedNewCompilerDiagnosticsId = null)
+        {
+            CodeFixProvider = codeFixProvider;
+            DiagnosticAnalyzer = diagnosticAnalyzer;
+
+            if (allowedNewCompilerDiagnosticsId == null || !allowedNewCompilerDiagnosticsId.Any())
+            {
+                VerifyFix(language, DiagnosticAnalyzer, CodeFixProvider, oldSource, newSource, codeFixIndex, false);
+            }
+            else
+            {
+                var document = DiagnosticVerifier.CreateDocument(oldSource, language);
+                var compilerDiagnostics = GetCompilerDiagnostics(document).ToArray();
+
+                VerifyFix(language, DiagnosticAnalyzer, CodeFixProvider, oldSource, newSource, codeFixIndex, true);
+
+                var newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document)).ToList();
+
+                if (newCompilerDiagnostics.Any(diagnostic => allowedNewCompilerDiagnosticsId.Any(s => s == diagnostic.Id)))
+                {
+                    Assert.Fail("Fix introduced new compiler diagnostics:\r\n{0}\r\n\r\nNew document:\r\n{1}\r\n",
+                                string.Join("\r\n", newCompilerDiagnostics.Select(d => d.ToString())),
+                                document.GetSyntaxRootAsync().Result.ToFullString());
+                }
+            }
+        }
+
+        internal void VerifyFix(CodeFixProvider codeFixProvider,
                                 DiagnosticAnalyzer diagnosticAnalyzer,
                                 string language,
                                 string oldSource,

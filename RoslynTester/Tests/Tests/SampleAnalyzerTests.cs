@@ -124,5 +124,44 @@ namespace Tests.Tests
     }";
             VerifyDiagnostic(original);
         }
+
+        [TestMethod]
+        public void Analyzer_With_MessageDiagnostic_FixProducesNewDiagnostic()
+        {
+            var original = @"
+    using System;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    namespace ConsoleApplication1
+    {
+        class MyClass
+        {   
+            async Task Method()
+            {
+                
+            }
+        }
+    }";
+
+            var result = @"
+    using System;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    namespace ConsoleApplication1
+    {
+        class MyClass
+        {   
+            async Task MethodAsync()
+            {
+                
+            }
+        }
+    }";
+
+            VerifyDiagnostic(original, string.Format(TestAnalyzer.Message, "Method"));
+            VerifyFix(original, result);
+        }
     }
 }
