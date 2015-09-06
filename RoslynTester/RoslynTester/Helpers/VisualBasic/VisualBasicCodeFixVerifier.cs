@@ -31,7 +31,7 @@ namespace RoslynTester.Helpers.VisualBasic
         protected void VerifyFix(string oldSource, string newSource, int? codeFixIndex = null,
             params string[] allowedNewCompilerDiagnosticsId)
         {
-            _codeFixVerifier.VerifyFix(CodeFixProvider, DiagnosticAnalyzer, LanguageNames.CSharp, oldSource, newSource, codeFixIndex, allowedNewCompilerDiagnosticsId);
+            _codeFixVerifier.VerifyFix(CodeFixProvider, DiagnosticAnalyzer, LanguageNames.VisualBasic, oldSource, newSource, codeFixIndex, allowedNewCompilerDiagnosticsId);
         }
     }
 }
