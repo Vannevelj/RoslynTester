@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
-using NUnit.Framework;
+using RoslynTester.Helpers.Testing;
 
 namespace RoslynTester.Helpers
 {
@@ -23,12 +23,12 @@ namespace RoslynTester.Helpers
         private DiagnosticAnalyzer DiagnosticAnalyzer { get; set; }
 
         internal void VerifyFix(CodeFixProvider codeFixProvider,
-                        DiagnosticAnalyzer diagnosticAnalyzer,
-                        string language,
-                        string oldSource,
-                        string newSource,
-                        int? codeFixIndex = null,
-                        string[] allowedNewCompilerDiagnosticsId = null)
+                                DiagnosticAnalyzer diagnosticAnalyzer,
+                                string language,
+                                string oldSource,
+                                string newSource,
+                                int? codeFixIndex = null,
+                                string[] allowedNewCompilerDiagnosticsId = null)
         {
             CodeFixProvider = codeFixProvider;
             DiagnosticAnalyzer = diagnosticAnalyzer;
@@ -48,9 +48,9 @@ namespace RoslynTester.Helpers
 
                 if (newCompilerDiagnostics.Any(diagnostic => allowedNewCompilerDiagnosticsId.Any(s => s == diagnostic.Id)))
                 {
-                    Assert.Fail("Fix introduced new compiler diagnostics:\r\n{0}\r\n\r\nNew document:\r\n{1}\r\n",
-                                string.Join("\r\n", newCompilerDiagnostics.Select(d => d.ToString())),
-                                document.GetSyntaxRootAsync().Result.ToFullString());
+                    Assert.AreEqual(document.GetSyntaxRootAsync().Result.ToFullString(),
+                        string.Join(Environment.NewLine, newCompilerDiagnostics.Select(d => d.ToString())),
+                        "Fix introduced new compiler diagnostics");
                 }
             }
         }
@@ -131,9 +131,9 @@ namespace RoslynTester.Helpers
                     document = document.WithSyntaxRoot(Formatter.Format(document.GetSyntaxRootAsync().Result, Formatter.Annotation, document.Project.Solution.Workspace));
                     newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document));
 
-                    Assert.Fail("Fix introduced new compiler diagnostics:\r\n{0}\r\n\r\nNew document:\r\n{1}\r\n",
-                        string.Join("\r\n", newCompilerDiagnostics.Select(d => d.ToString())),
-                        document.GetSyntaxRootAsync().Result.ToFullString());
+                    Assert.AreEqual(document.GetSyntaxRootAsync().Result.ToFullString(),
+                        string.Join(Environment.NewLine, newCompilerDiagnostics.Select(d => d.ToString())),
+                        "Fix introduced new compiler diagnostics.");
                 }
 
                 //check if there are analyzer diagnostics left after the code fix
@@ -145,7 +145,7 @@ namespace RoslynTester.Helpers
 
             //after applying all of the code fixes, compare the resulting string to the inputted one
             var actual = GetStringFromDocument(document);
-            Assert.AreEqual(newSource, actual, $"RESULT:\n\n{document.GetSyntaxRootAsync().Result.ToFullString()}");
+            Assert.AreEqual(document.GetSyntaxRootAsync().Result.ToFullString(), actual, "Expected document is not the same as the resulting one.");
         }
 
         /// <summary>
