@@ -7,8 +7,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
-using NUnit.Framework;
 using RoslynTester.DiagnosticResults;
+using RoslynTester.Helpers.Testing;
 
 namespace RoslynTester.Helpers
 {
@@ -17,14 +17,14 @@ namespace RoslynTester.Helpers
     /// </summary>
     public abstract class DiagnosticVerifier
     {
-        private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof (Compilation).Assembly.Location);
-        private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof (object).Assembly.Location);
+        private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
+        private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
         private const string CSharpFileExtension = ".cs";
-        private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof (CSharpCompilation).Assembly.Location);
+        private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).Assembly.Location);
         private const string FileName = "Test";
         private const string FileNameTemplate = FileName + "{0}{1}";
         private const string ProjectName = "TestProject";
-        private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof (Enumerable).Assembly.Location);
+        private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location);
         private const string VisualBasicFileExtension = ".vb";
         private readonly string _languageName;
 
@@ -65,8 +65,10 @@ namespace RoslynTester.Helpers
                         }
                         else
                         {
-                            Assert.IsTrue(location.IsInSource,
-                                string.Format("Test base does not currently handle diagnostics in metadata locations. Diagnostic in metadata:\r\n", diagnostics[i]));
+                            if (!location.IsInSource)
+                            {
+                                Assert.Fail($"Test base does not currently handle diagnostics in metadata locations.Diagnostic in metadata:\r\n{diagnostics[i]}");
+                            }
 
                             var resultMethodName = diagnostics[i].Location.SourceTree.FilePath.EndsWith(CSharpFileExtension) ? "GetCSharpResultAt" : "GetBasicResultAt";
                             var linePosition = diagnostics[i].Location.GetLineSpan().StartLinePosition;
