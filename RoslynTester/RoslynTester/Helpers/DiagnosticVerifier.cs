@@ -111,7 +111,7 @@ namespace RoslynTester.Helpers
         /// <param name="expected">Diagnostic messages that should appear after the analyzer is run on the sources</param>
         protected void VerifyDiagnostic(string[] sources, params string[] expected)
         {
-            VerifyDiagnostics(sources, LanguageNames.CSharp, expected);
+            VerifyDiagnostics(sources, _languageName, expected);
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace RoslynTester.Helpers
         /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
         protected void VerifyDiagnostic(string source, params DiagnosticResult[] expected)
         {
-            VerifyDiagnostics(new[] { source }, LanguageNames.CSharp, expected);
+            VerifyDiagnostics(new[] { source }, _languageName, expected);
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace RoslynTester.Helpers
         /// <param name="expected">Diagnostic messages that should appear after the analyzer is run on the sources</param>
         protected void VerifyDiagnostic(string source, params string[] expected)
         {
-            VerifyDiagnostics(new[] { source }, LanguageNames.CSharp, expected);
+            VerifyDiagnostics(new[] { source }, _languageName, expected);
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace RoslynTester.Helpers
         /// <param name="source">A string representing the document to run the analyzer on</param>
         protected void VerifyDiagnostic(string source)
         {
-            VerifyDiagnostics(new[] { source }, LanguageNames.CSharp, new string[] { });
+            VerifyDiagnostics(new[] { source }, _languageName, new string[] { });
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace RoslynTester.Helpers
         /// <param name="sources">An array of strings representing the documents</param>
         protected void VerifyDiagnostic(string[] sources)
         {
-            VerifyDiagnostics(sources, LanguageNames.CSharp, new string[] { });
+            VerifyDiagnostics(sources, _languageName, new string[] { });
         }
 
         /// <summary>
