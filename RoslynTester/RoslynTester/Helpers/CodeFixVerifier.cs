@@ -201,6 +201,7 @@ namespace RoslynTester.Helpers
         /// <returns>The compiler diagnostics that were found in the code</returns>
         private static IEnumerable<Diagnostic> GetCompilerDiagnostics(Document document)
         {
+            var v = document.GetSemanticModelAsync();
             return document.GetSemanticModelAsync().Result.GetDiagnostics();
         }
 
