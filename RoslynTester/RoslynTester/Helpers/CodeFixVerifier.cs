@@ -48,9 +48,10 @@ namespace RoslynTester.Helpers
 
                 if (newCompilerDiagnostics.Any(diagnostic => allowedNewCompilerDiagnosticsId.Any(s => s == diagnostic.Id)))
                 {
-                    Assert.AreEqual(document.GetSyntaxRootAsync().Result.ToFullString(),
-                        string.Join(Environment.NewLine, newCompilerDiagnostics.Select(d => d.ToString())),
-                        "Fix introduced new compiler diagnostics");
+                    Assert.Fail(
+                        "Fix introduced new compiler diagnostics. " +
+                        $"\r\n{document.GetSyntaxRootAsync().Result.ToFullString()}" +
+                        $"\r\n\r\n{string.Join(Environment.NewLine, newCompilerDiagnostics.Select(d => d.ToString()))}");
                 }
             }
         }
@@ -131,9 +132,10 @@ namespace RoslynTester.Helpers
                     document = document.WithSyntaxRoot(Formatter.Format(document.GetSyntaxRootAsync().Result, Formatter.Annotation, document.Project.Solution.Workspace));
                     newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document));
 
-                    Assert.AreEqual(document.GetSyntaxRootAsync().Result.ToFullString(),
-                        string.Join(Environment.NewLine, newCompilerDiagnostics.Select(d => d.ToString())),
-                        "Fix introduced new compiler diagnostics.");
+                    Assert.Fail(
+                        "Fix introduced new compiler diagnostics. " +
+                        $"\r\n{document.GetSyntaxRootAsync().Result.ToFullString()}" +
+                        $"\r\n\r\n{string.Join(Environment.NewLine, newCompilerDiagnostics.Select(d => d.ToString()))}");
                 }
 
                 //check if there are analyzer diagnostics left after the code fix
@@ -145,7 +147,7 @@ namespace RoslynTester.Helpers
 
             //after applying all of the code fixes, compare the resulting string to the inputted one
             var actual = GetStringFromDocument(document);
-            Assert.AreEqual(newSource, actual, $"RESULT:\n\n{document.GetSyntaxRootAsync().Result.ToFullString()}");
+            Assert.AreEqual(newSource, actual, "Expected document is not the same as the resulting one.");
         }
 
         /// <summary>
