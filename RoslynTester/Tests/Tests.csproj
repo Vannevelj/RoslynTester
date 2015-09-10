@@ -106,12 +106,16 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="SampleAnalyzer_VBAndCSharp\SampleAnalyzer_VBAndCSharpAnalyzer.cs" />
+    <Compile Include="SampleAnalyzer_VBAndCSharp\SampleAnalyzer_VBAndCSharpCodeFix.cs" />
     <Compile Include="SampleAnalyzer\TestAnalyzer.cs" />
     <Compile Include="SampleAnalyzer\TestCodeFix.cs" />
     <Compile Include="SampleAnalyzer_FixIntroducesNewDiagnostic\SampleAnalyzer_FixIntroducesNewDiagnosticAnalyzer.cs" />
     <Compile Include="SampleAnalyzer_FixIntroducesNewDiagnostic\SampleAnalyzer_FixIntroducesNewDiagnosticCodeFix.cs" />
     <Compile Include="SampleVBAnalyzer\VBTestAnalyzer.cs" />
     <Compile Include="SampleVBAnalyzer\VBTestCodeFix.cs" />
+    <Compile Include="Tests\EnumCanHaveFlagsAttributeCSharpTests.cs" />
+    <Compile Include="Tests\EnumCanHaveFlagsAttributeVisualBasicTests.cs" />
     <Compile Include="Tests\SampleAnalyzerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\SampleAnalyzerFixIntroducesNewDiagnosticTests.cs" />

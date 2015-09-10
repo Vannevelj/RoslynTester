@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.VisualBasic;
 using RoslynTester.DiagnosticResults;
 using RoslynTester.Helpers.Testing;
 
@@ -21,6 +22,8 @@ namespace RoslynTester.Helpers
         private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
         private const string CSharpFileExtension = ".cs";
         private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).Assembly.Location);
+
+        private static readonly MetadataReference VisualBasicSymbolsReference = MetadataReference.CreateFromFile(typeof (VisualBasicCompilation).Assembly.Location);
         private const string FileName = "Test";
         private const string FileNameTemplate = FileName + "{0}{1}";
         private const string ProjectName = "TestProject";
@@ -395,7 +398,13 @@ namespace RoslynTester.Helpers
             var solution = new AdhocWorkspace()
                 .CurrentSolution
                 .AddProject(projectId, ProjectName, ProjectName, language)
-                .AddMetadataReferences(projectId, new[] { CorlibReference, SystemCoreReference, CSharpSymbolsReference, CodeAnalysisReference });
+                .AddMetadataReferences(projectId,
+                    new[]
+                    {
+                        CorlibReference, SystemCoreReference,
+                        language == LanguageNames.CSharp ? CSharpSymbolsReference : VisualBasicSymbolsReference,
+                        CodeAnalysisReference
+                    });
 
             var count = 0;
             foreach (var source in sources)

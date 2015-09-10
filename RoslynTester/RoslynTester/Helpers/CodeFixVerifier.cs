@@ -145,7 +145,7 @@ namespace RoslynTester.Helpers
 
             //after applying all of the code fixes, compare the resulting string to the inputted one
             var actual = GetStringFromDocument(document);
-            Assert.AreEqual(document.GetSyntaxRootAsync().Result.ToFullString(), actual, "Expected document is not the same as the resulting one.");
+            Assert.AreEqual(newSource, actual, $"RESULT:\n\n{document.GetSyntaxRootAsync().Result.ToFullString()}");
         }
 
         /// <summary>
