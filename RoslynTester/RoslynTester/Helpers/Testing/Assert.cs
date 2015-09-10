@@ -1,12 +1,16 @@
-﻿namespace RoslynTester.Helpers.Testing
+﻿using System;
+
+namespace RoslynTester.Helpers.Testing
 {
     internal static class Assert
     {
-        public static void AreEqual(object one, object two, string message)
+        public static void AreEqual(object expected, object actual, string message)
         {
-            if (!one.Equals(two))
+            if (!expected.Equals(actual))
             {
-                throw new AssertionException(one, two, message);
+                throw new AssertionException($"{Environment.NewLine}{message}{Environment.NewLine}" +
+                                             $"Expected: {expected}{Environment.NewLine}" +
+                                             $"Actual: {actual}");
             }
         }
 
