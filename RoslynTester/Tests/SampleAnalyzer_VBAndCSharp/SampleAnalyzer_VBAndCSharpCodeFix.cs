@@ -86,7 +86,11 @@ namespace Tests.SampleAnalyzer_VBAndCSharp
             var compilationUnit = (VisualBasicCompilationUnitSyntax)newRoot;
 
             var importSystemClause =
-                VisualBasicSyntaxFactory.SimpleImportsClause(VisualBasicSyntaxFactory.ParseName("System" + Environment.NewLine));
+                VisualBasicSyntaxFactory.SimpleImportsClause(
+                    VisualBasicSyntaxFactory.ParseName("System"))
+                    .WithTrailingTrivia(
+                        VisualBasicSyntaxFactory.SyntaxTrivia(
+                            Microsoft.CodeAnalysis.VisualBasic.SyntaxKind.EndOfLineTrivia, Environment.NewLine));
             var importsList = VisualBasicSyntaxFactory.SeparatedList(new List<ImportsClauseSyntax> { importSystemClause });
             var importStatement = VisualBasicSyntaxFactory.ImportsStatement(importsList);
 

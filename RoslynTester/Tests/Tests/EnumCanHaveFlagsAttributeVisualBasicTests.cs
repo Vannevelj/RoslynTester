@@ -16,25 +16,22 @@ namespace Tests.Tests
         [TestMethod]
         public void EnumCanHaveFlagsAttribute_AddsFlagsAttribute()
         {
-            var original = 
-@"Module Module1
-
+            var original = @"
+Module Module1
     Enum Foo
         Bar
         Baz
     End Enum
-
 End Module";
 
-            var result = 
-@"Imports System
+            var result = @"
+Imports System
 Module Module1
     <Flags>
     Enum Foo
         Bar
         Baz
     End Enum
-
 End Module";
 
             VerifyDiagnostic(original, SampleAnalyzer_VBAndCSharpAnalyzer.Rule.MessageFormat.ToString());
@@ -141,7 +138,7 @@ End Module";
         public void EnumCanHaveFlagsAttribute_AddsFlagsAttribute_AddsUsingSystemWhenUsingSystemDotAnything()
         {
             var original =
-@"Imports System.Text;
+@"Imports System.Text
 Module Module1
 
     Enum Foo
@@ -152,7 +149,8 @@ Module Module1
 End Module";
 
             var result =
-@"Imports System.Text;
+@"Imports System.Text
+Imports System
 Module Module1
     <Flags>
     Enum Foo

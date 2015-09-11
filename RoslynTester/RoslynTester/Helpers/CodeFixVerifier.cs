@@ -132,6 +132,12 @@ namespace RoslynTester.Helpers
                     document = document.WithSyntaxRoot(Formatter.Format(document.GetSyntaxRootAsync().Result, Formatter.Annotation, document.Project.Solution.Workspace));
                     newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document));
 
+                    var newcode = document.GetSyntaxRootAsync().Result.ToFullString();
+                    var b = newcode == newSource;
+                    var dd = DiagnosticVerifier.CreateDocument(newSource, LanguageNames.VisualBasic);
+                    var x = GetCompilerDiagnostics(dd);
+                    var y = GetCompilerDiagnostics(document);
+
                     Assert.Fail(
                         "Fix introduced new compiler diagnostics. " +
                         $"\r\n{document.GetSyntaxRootAsync().Result.ToFullString()}" +
