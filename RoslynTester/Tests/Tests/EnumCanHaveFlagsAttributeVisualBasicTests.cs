@@ -16,8 +16,8 @@ namespace Tests.Tests
         [TestMethod]
         public void EnumCanHaveFlagsAttribute_AddsFlagsAttribute()
         {
-            var original = @"
-Module Module1
+            var original = 
+@"Module Module1
 
     Enum Foo
         Bar
@@ -26,8 +26,8 @@ Module Module1
 
 End Module";
 
-            var result = @"
-Imports System
+            var result = 
+@"Imports System
 Module Module1
     <Flags>
     Enum Foo
