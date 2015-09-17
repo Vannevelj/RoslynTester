@@ -1,6 +1,8 @@
-﻿using Microsoft.CodeAnalysis.CodeFixes;
+﻿using System;
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RoslynTester;
 using RoslynTester.DiagnosticResults;
 using RoslynTester.Helpers.CSharp;
 using Tests.SampleAnalyzer;
@@ -25,7 +27,9 @@ namespace Tests.Tests
     namespace ConsoleApplication1
     {
         class MyClass
-        {   
+        {
+            static void Main() {}
+
             async Task Method()
             {
                 
@@ -41,7 +45,9 @@ namespace Tests.Tests
     namespace ConsoleApplication1
     {
         class MyClass
-        {   
+        {
+            static void Main() {}
+
             async Task MethodAsync()
             {
                 
@@ -57,7 +63,7 @@ namespace Tests.Tests
                 Locations =
                     new[]
                     {
-                        new DiagnosticResultLocation("Test0.cs", 10, 24)
+                        new DiagnosticResultLocation("Test0.cs", 12, 24)
                     }
             };
 
@@ -77,6 +83,8 @@ namespace Tests.Tests
     {
         class MyClass
         {   
+            static void Main() {}
+
             async Task Method()
             {
                 
@@ -93,6 +101,8 @@ namespace Tests.Tests
     {
         class MyClass
         {   
+            static void Main() {}
+
             async Task MethodAsync()
             {
                 
@@ -101,6 +111,74 @@ namespace Tests.Tests
     }";
 
             VerifyDiagnostic(original, string.Format(TestAnalyzer.Message, "Method"));
+            VerifyFix(original, result);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Analyzer_ThrowsExceptionForBrokenCode_Diagnostic()
+        {
+            var original = @"
+    using System;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    namespace ConsoleApplication1
+    {
+        class MyClass
+        {   
+            static void Main() {}
+
+            async Task Method(
+            {
+                
+            }
+        }
+    }";
+
+            VerifyDiagnostic(original, string.Format(TestAnalyzer.Message, "Method"));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Analyzer_ThrowsExceptionForBrokenCode_CodeFix()
+        {
+            var original = @"
+    using System;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    namespace ConsoleApplication1
+    {
+        class MyClass
+        {   
+            static void Main() {}
+
+            async Task Method(
+            {
+                
+            }
+        }
+    }";
+
+            var result = @"
+    using System;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    namespace ConsoleApplication1
+    {
+        class MyClass
+        {   
+            static void Main() {}
+
+            async Task MethodAsync(
+            {
+                
+            }
+        }
+    }";
+
             VerifyFix(original, result);
         }
 
@@ -116,6 +194,8 @@ namespace Tests.Tests
     {
         class MyClass
         {   
+            static void Main() {}
+
             async Task MethodAsync()
             {
                 
@@ -137,6 +217,8 @@ namespace Tests.Tests
     {
         class MyClass
         {   
+            static void Main() {}
+
             async Task Method()
             {
                 
@@ -153,6 +235,8 @@ namespace Tests.Tests
     {
         class MyClass
         {   
+            static void Main() {}
+
             async Task MethodAsync()
             {
                 

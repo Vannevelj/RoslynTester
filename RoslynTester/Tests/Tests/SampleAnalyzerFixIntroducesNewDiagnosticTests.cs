@@ -23,6 +23,8 @@ namespace ConsoleApplication1
 {
     class MyClass
     {
+        static void Main() {}
+
         void Method()
         {
             Int16 i16 = 9;
@@ -37,6 +39,8 @@ namespace ConsoleApplication1
 {
     class MyClass
     {
+        static void Main() {}
+
         void Method()
         {
             short i16 = 9;

@@ -325,6 +325,16 @@ namespace RoslynTester.Helpers
             foreach (var project in documents.Select(x => x.Project))
             {
                 var compilation = project.GetCompilationAsync().Result;
+
+                var systemDiags = compilation.GetDiagnostics();
+                if (systemDiags.Any(d => d.Severity == DiagnosticSeverity.Error))
+                {
+                    var firstError = systemDiags.First(d => d.Severity == DiagnosticSeverity.Error);
+                    throw new ArgumentException(
+                        $"Unable to compile program: \"{firstError.GetMessage()}\"\n" +
+                        $"Error at line {firstError.Location.GetLineSpan().StartLinePosition.Line} and column {firstError.Location.GetLineSpan().StartLinePosition.Character}");
+                }
+
                 var diags = compilation.WithAnalyzers(ImmutableArray.Create(analyzer)).GetAnalyzerDiagnosticsAsync().Result;
                 foreach (var diagnostic in diags)
                 {
