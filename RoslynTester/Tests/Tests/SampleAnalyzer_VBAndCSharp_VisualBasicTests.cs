@@ -18,6 +18,9 @@ namespace Tests.Tests
         {
             var original = @"
 Module Module1
+    Sub Main()
+    End Sub
+
     Enum Foo
         Bar
         Baz
@@ -27,6 +30,9 @@ End Module";
             var result = @"
 Imports System
 Module Module1
+    Sub Main()
+    End Sub
+
     <Flags>
     Enum Foo
         Bar
@@ -45,6 +51,9 @@ End Module";
 @"Imports System
 Module Module1
 
+    Sub Main()
+    End Sub
+
     Enum Foo
         Bar
         Baz
@@ -55,6 +64,10 @@ End Module";
             var result =
 @"Imports System
 Module Module1
+
+    Sub Main()
+    End Sub
+
     <Flags>
     Enum Foo
         Bar
@@ -74,6 +87,9 @@ End Module";
 Imports System
 Module Module1
 
+    Sub Main()
+    End Sub
+
     <Obsolete(""I'm obsolete"")>
     Enum Foo
         Bar
@@ -85,6 +101,9 @@ End Module";
             var result = @"
 Imports System
 Module Module1
+
+    Sub Main()
+    End Sub
 
     <Obsolete(""I'm obsolete"")>
     <Flags>
@@ -105,6 +124,9 @@ End Module";
             var original = @"
 Module Module1
 
+    Sub Main()
+    End Sub
+
     ''' <summary>
     ''' Doc comment for Foo...
     ''' </summary>
@@ -118,6 +140,9 @@ End Module";
             var result = @"
 Imports System
 Module Module1
+
+    Sub Main()
+    End Sub
 
     ''' <summary>
     ''' Doc comment for Foo...
@@ -141,6 +166,9 @@ End Module";
 @"Imports System.Text
 Module Module1
 
+    Sub Main()
+    End Sub
+
     Enum Foo
         Bar
         Baz
@@ -152,6 +180,10 @@ End Module";
 @"Imports System.Text
 Imports System
 Module Module1
+
+    Sub Main()
+    End Sub
+
     <Flags>
     Enum Foo
         Bar
@@ -171,6 +203,9 @@ End Module";
 Imports System
 Module Module1
 
+    Sub Main()
+    End Sub
+
     <Flags>
     Enum Foo
         Bar
@@ -189,6 +224,9 @@ End Module";
 Imports System
 Module Module1
 
+    Sub Main()
+    End Sub
+
     <FlagsAttribute>
     Enum Foo
         Bar
@@ -206,6 +244,9 @@ End Module";
             var original = @"
 Imports System
 Module Module1
+
+    Sub Main()
+    End Sub
 
     <Obsolete(""I'm obsolete""), Flags>
     Enum Foo

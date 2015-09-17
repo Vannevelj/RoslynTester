@@ -106,6 +106,8 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="SampleAnalyzerWithErrorSeverity\TestAnalyzerWithErrorSeverity.cs" />
+    <Compile Include="SampleAnalyzerWithErrorSeverity\TestCodeFixWithErrorSeverity.cs" />
     <Compile Include="SampleAnalyzer_VBAndCSharp\SampleAnalyzer_VBAndCSharpAnalyzer.cs" />
     <Compile Include="SampleAnalyzer_VBAndCSharp\SampleAnalyzer_VBAndCSharpCodeFix.cs" />
     <Compile Include="SampleAnalyzer\TestAnalyzer.cs" />
@@ -114,6 +116,7 @@
     <Compile Include="SampleAnalyzer_FixIntroducesNewDiagnostic\SampleAnalyzer_FixIntroducesNewDiagnosticCodeFix.cs" />
     <Compile Include="SampleVBAnalyzer\VBTestAnalyzer.cs" />
     <Compile Include="SampleVBAnalyzer\VBTestCodeFix.cs" />
+    <Compile Include="Tests\SampleAnalyzerWithErrorSeverityTests.cs" />
     <Compile Include="Tests\SampleAnalyzer_VBAndCSharp_CSharpTests.cs" />
     <Compile Include="Tests\SampleAnalyzer_VBAndCSharp_VisualBasicTests.cs" />
     <Compile Include="Tests\SampleAnalyzerTests.cs" />
