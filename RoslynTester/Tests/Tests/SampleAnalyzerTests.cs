@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RoslynTester;
 using RoslynTester.DiagnosticResults;
 using RoslynTester.Helpers.CSharp;
+using RoslynTester.Helpers.Testing;
 using Tests.SampleAnalyzer;
 
 namespace Tests.Tests
@@ -28,8 +29,6 @@ namespace Tests.Tests
     {
         class MyClass
         {
-            static void Main() {}
-
             async Task Method()
             {
                 
@@ -46,8 +45,6 @@ namespace Tests.Tests
     {
         class MyClass
         {
-            static void Main() {}
-
             async Task MethodAsync()
             {
                 
@@ -63,7 +60,7 @@ namespace Tests.Tests
                 Locations =
                     new[]
                     {
-                        new DiagnosticResultLocation("Test0.cs", 12, 24)
+                        new DiagnosticResultLocation("Test0.cs", 10, 24)
                     }
             };
 
@@ -83,8 +80,6 @@ namespace Tests.Tests
     {
         class MyClass
         {   
-            static void Main() {}
-
             async Task Method()
             {
                 
@@ -101,8 +96,6 @@ namespace Tests.Tests
     {
         class MyClass
         {   
-            static void Main() {}
-
             async Task MethodAsync()
             {
                 
@@ -115,7 +108,7 @@ namespace Tests.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [ExpectedException(typeof(InvalidCodeException))]
         public void Analyzer_ThrowsExceptionForBrokenCode_Diagnostic()
         {
             var original = @"
@@ -127,8 +120,6 @@ namespace Tests.Tests
     {
         class MyClass
         {   
-            static void Main() {}
-
             async Task Method(
             {
                 
@@ -140,7 +131,7 @@ namespace Tests.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [ExpectedException(typeof(InvalidCodeException))]
         public void Analyzer_ThrowsExceptionForBrokenCode_CodeFix()
         {
             var original = @"
@@ -152,8 +143,6 @@ namespace Tests.Tests
     {
         class MyClass
         {   
-            static void Main() {}
-
             async Task Method(
             {
                 
@@ -170,8 +159,6 @@ namespace Tests.Tests
     {
         class MyClass
         {   
-            static void Main() {}
-
             async Task MethodAsync(
             {
                 
@@ -194,8 +181,6 @@ namespace Tests.Tests
     {
         class MyClass
         {   
-            static void Main() {}
-
             async Task MethodAsync()
             {
                 
@@ -217,8 +202,6 @@ namespace Tests.Tests
     {
         class MyClass
         {   
-            static void Main() {}
-
             async Task Method()
             {
                 
@@ -235,8 +218,6 @@ namespace Tests.Tests
     {
         class MyClass
         {   
-            static void Main() {}
-
             async Task MethodAsync()
             {
                 

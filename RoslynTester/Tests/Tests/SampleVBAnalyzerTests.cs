@@ -20,10 +20,6 @@ namespace Tests.Tests
 Imports System
 
 Module Module1
-
-    Sub Main()
-    End Sub
-
     <Obsolete()>
     Sub Foo()
     End Sub
@@ -34,10 +30,6 @@ End Module";
 Imports System
 
 Module Module1
-
-    Sub Main()
-    End Sub
-
     <Obsolete>
     Sub Foo()
     End Sub
@@ -55,10 +47,6 @@ End Module";
 Imports System
 
 Module Module1
-
-    Sub Main()
-    End Sub
-
     <Obsolete>
     Sub Foo()
     End Sub

@@ -22,11 +22,6 @@ namespace Tests.Tests
     enum Foo
     {
     }
-
-    class MyClass
-    {
-        static void Main() {}
-    }
 }";
 
             var result =
@@ -37,11 +32,6 @@ namespace ConsoleApplication1
     [Flags]
     enum Foo
     {
-    }
-
-    class MyClass
-    {
-        static void Main() {}
     }
 }";
 
@@ -60,11 +50,6 @@ namespace ConsoleApplication1
     enum Foo
     {
     }
-
-    class MyClass
-    {
-        static void Main() {}
-    }
 }";
 
             var result =
@@ -75,11 +60,6 @@ namespace ConsoleApplication1
     [Flags]
     enum Foo
     {
-    }
-
-    class MyClass
-    {
-        static void Main() {}
     }
 }";
 
@@ -104,11 +84,6 @@ namespace ConsoleApplication1
         Koo,
         Loo
     }
-
-    class MyClass
-    {
-        static void Main() {}
-    }
 }";
 
             var result =
@@ -125,11 +100,6 @@ namespace ConsoleApplication1
         Joo,
         Koo,
         Loo
-    }
-
-    class MyClass
-    {
-        static void Main() {}
     }
 }";
 
@@ -154,11 +124,6 @@ namespace ConsoleApplication1
         Koo,
         Loo
     }
-
-    class MyClass
-    {
-        static void Main() {}
-    }
 }";
 
             var result =
@@ -178,11 +143,6 @@ namespace ConsoleApplication1
         Koo,
         Loo
     }
-
-    class MyClass
-    {
-        static void Main() {}
-    }
 }";
 
             VerifyDiagnostic(original, SampleAnalyzer_VBAndCSharpAnalyzer.Rule.MessageFormat.ToString());
@@ -200,11 +160,6 @@ namespace ConsoleApplication1
     enum Foo
     {
     }
-
-    class MyClass
-    {
-        static void Main() {}
-    }
 }";
 
             var result =
@@ -216,11 +171,6 @@ namespace ConsoleApplication1
     [Flags]
     enum Foo
     {
-    }
-
-    class MyClass
-    {
-        static void Main() {}
     }
 }";
 
@@ -240,11 +190,6 @@ namespace ConsoleApplication1
     enum Foo
     {
     }
-
-    class MyClass
-    {
-        static void Main() {}
-    }
 }";
 
             VerifyDiagnostic(original);
@@ -262,11 +207,6 @@ namespace ConsoleApplication1
     enum Foo
     {
     }
-
-    class MyClass
-    {
-        static void Main() {}
-    }
 }";
 
             VerifyDiagnostic(original);
@@ -283,11 +223,6 @@ namespace ConsoleApplication1
     [Obsolete(""I'm obsolete""), Flags]
     enum Foo
     {
-    }
-
-    class MyClass
-    {
-        static void Main() {}
     }
 }";
 

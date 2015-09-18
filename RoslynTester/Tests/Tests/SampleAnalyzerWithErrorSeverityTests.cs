@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RoslynTester.Helpers.CSharp;
+using RoslynTester.Helpers.Testing;
 using Tests.SampleAnalyzerWithErrorSeverity;
 
 namespace Tests.Tests
@@ -25,8 +26,6 @@ namespace Tests.Tests
     {
         class MyClass
         {   
-            static void Main() {}
-
             async Task Method()
             {
                 
@@ -43,8 +42,46 @@ namespace Tests.Tests
     {
         class MyClass
         {   
-            static void Main() {}
+            async Task MethodAsync()
+            {
+                
+            }
+        }
+    }";
 
+            VerifyDiagnostic(original, string.Format(TestAnalyzerWithErrorSeverity.Message, "Method"));
+            VerifyFix(original, result);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidCodeException))]
+        public void Analyzer_WithUnCompilableCode_ThrowsException()
+        {
+            var original = @"
+    using System;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    namespace ConsoleApplication1
+    {
+        classicqsddsdqdsdsqddqqddq MyClass
+        {   
+            async Task Method()
+            {
+                
+            }
+        }
+    }";
+
+            var result = @"
+    using System;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    namespace ConsoleApplication1
+    {
+        classicqsddsdqdsdsqddqqddq MyClass
+        {   
             async Task MethodAsync()
             {
                 
