@@ -1,8 +1,11 @@
-﻿using Microsoft.CodeAnalysis.CodeFixes;
+﻿using System;
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RoslynTester;
 using RoslynTester.DiagnosticResults;
 using RoslynTester.Helpers.CSharp;
+using RoslynTester.Helpers.Testing;
 using Tests.SampleAnalyzer;
 
 namespace Tests.Tests
@@ -25,7 +28,7 @@ namespace Tests.Tests
     namespace ConsoleApplication1
     {
         class MyClass
-        {   
+        {
             async Task Method()
             {
                 
@@ -41,7 +44,7 @@ namespace Tests.Tests
     namespace ConsoleApplication1
     {
         class MyClass
-        {   
+        {
             async Task MethodAsync()
             {
                 
@@ -101,6 +104,68 @@ namespace Tests.Tests
     }";
 
             VerifyDiagnostic(original, string.Format(TestAnalyzer.Message, "Method"));
+            VerifyFix(original, result);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidCodeException))]
+        public void Analyzer_ThrowsExceptionForBrokenCode_Diagnostic()
+        {
+            var original = @"
+    using System;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    namespace ConsoleApplication1
+    {
+        class MyClass
+        {   
+            async Task Method(
+            {
+                
+            }
+        }
+    }";
+
+            VerifyDiagnostic(original, string.Format(TestAnalyzer.Message, "Method"));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidCodeException))]
+        public void Analyzer_ThrowsExceptionForBrokenCode_CodeFix()
+        {
+            var original = @"
+    using System;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    namespace ConsoleApplication1
+    {
+        class MyClass
+        {   
+            async Task Method(
+            {
+                
+            }
+        }
+    }";
+
+            var result = @"
+    using System;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    namespace ConsoleApplication1
+    {
+        class MyClass
+        {   
+            async Task MethodAsync(
+            {
+                
+            }
+        }
+    }";
+
             VerifyFix(original, result);
         }
 

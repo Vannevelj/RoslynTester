@@ -7,16 +7,16 @@ using Tests.SampleAnalyzer_VBAndCSharp;
 namespace Tests.Tests
 {
     [TestClass]
-    public class EnumCanHaveFlagsAttributeCSharpTests : CSharpCodeFixVerifier
+    public class SampleAnalyzer_VBAndCSharp_CSharpTests : CSharpCodeFixVerifier
     {
         protected override DiagnosticAnalyzer DiagnosticAnalyzer => new SampleAnalyzer_VBAndCSharpAnalyzer();
 
         protected override CodeFixProvider CodeFixProvider => new SampleAnalyzer_VBAndCSharpCodeFix();
 
         [TestMethod]
-        public void EnumCanHaveFlagsAttribute_AddsFlagsAttribute()
+        public void SampleAnalyzer_AddsFlagsAttribute()
         {
-            var original = 
+            var original =
 @"namespace ConsoleApplication1
 {
     enum Foo
@@ -24,7 +24,7 @@ namespace Tests.Tests
     }
 }";
 
-            var result = 
+            var result =
 @"using System;
 
 namespace ConsoleApplication1
@@ -40,7 +40,7 @@ namespace ConsoleApplication1
         }
 
         [TestMethod]
-        public void EnumCanHaveFlagsAttribute_AddsFlagsAttribute_DoesNotAddDuplicateUsingSystem()
+        public void SampleAnalyzer_AddsFlagsAttribute_DoesNotAddDuplicateUsingSystem()
         {
             var original =
 @"using System;
@@ -68,7 +68,7 @@ namespace ConsoleApplication1
         }
 
         [TestMethod]
-        public void EnumCanHaveFlagsAttribute_AddsFlagsAttribute_OnlyAddsFlagsAttribute()
+        public void SampleAnalyzer_AddsFlagsAttribute_OnlyAddsFlagsAttribute()
         {
             var original =
 @"using System;
@@ -108,7 +108,7 @@ namespace ConsoleApplication1
         }
 
         [TestMethod]
-        public void EnumCanHaveFlagsAttribute_EnumHasXmlDocComment_OnlyAddsFlagsAttribute()
+        public void SampleAnalyzer_EnumHasXmlDocComment_OnlyAddsFlagsAttribute()
         {
             var original =
 @"namespace ConsoleApplication1
@@ -150,7 +150,7 @@ namespace ConsoleApplication1
         }
 
         [TestMethod]
-        public void EnumCanHaveFlagsAttribute_AddsFlagsAttribute_AddsUsingSystemWhenUsingSystemDotAnything()
+        public void SampleAnalyzer_AddsFlagsAttribute_AddsUsingSystemWhenUsingSystemDotAnything()
         {
             var original =
 @"using System.Text;
@@ -179,7 +179,7 @@ namespace ConsoleApplication1
         }
 
         [TestMethod]
-        public void EnumCanHaveFlagsAttribute_InspectionDoesNotReturnWhenFlagsAlreadyApplied()
+        public void SampleAnalyzer_InspectionDoesNotReturnWhenFlagsAlreadyApplied()
         {
             var original = @"
 using System;
@@ -196,7 +196,7 @@ namespace ConsoleApplication1
         }
 
         [TestMethod]
-        public void EnumCanHaveFlagsAttribute_InspectionDoesNotReturnWhenFlagsAttributeAlreadyApplied()
+        public void SampleAnalyzer_InspectionDoesNotReturnWhenFlagsAttributeAlreadyApplied()
         {
             var original = @"
 using System;
@@ -213,7 +213,7 @@ namespace ConsoleApplication1
         }
 
         [TestMethod]
-        public void EnumCanHaveFlagsAttribute_InspectionDoesNotReturnWhenFlagsAlreadyAppliedAsChain()
+        public void SampleAnalyzer_InspectionDoesNotReturnWhenFlagsAlreadyAppliedAsChain()
         {
             var original = @"
 using System;

@@ -38,8 +38,8 @@ namespace Tests.SampleAnalyzer_FixIntroducesNewDiagnostic
                 MapConcreteTypeToPredefinedTypeAlias.First(
                     kvp => kvp.Key == typeName).Value;
 
-            var newExpression = SyntaxFactory.PredefinedType(SyntaxFactory.Token(aliasToken));
-            var newRoot = root.ReplaceNode(statement, newExpression).WithAdditionalAnnotations(Formatter.Annotation);
+            var newExpression = SyntaxFactory.PredefinedType(SyntaxFactory.Token(aliasToken)).WithAdditionalAnnotations(Formatter.Annotation);
+            var newRoot = root.ReplaceNode(statement, newExpression);
             var newDocument = document.WithSyntaxRoot(newRoot);
 
             return newDocument.Project.Solution;

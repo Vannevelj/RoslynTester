@@ -17,21 +17,21 @@ namespace Tests.Tests
         public void Analyzer_WithVisualBasicCode_WithCodeFix()
         {
             var original = @"
-Module Module1
+Imports System
 
+Module Module1
     <Obsolete()>
     Sub Foo()
-
     End Sub
 
 End Module";
 
             var result = @"
-Module Module1
+Imports System
 
+Module Module1
     <Obsolete>
     Sub Foo()
-
     End Sub
 
 End Module";
@@ -44,11 +44,11 @@ End Module";
         public void Analyzer_WithVisualBasicCode_WithDiagnostic()
         {
             var original = @"
-Module Module1
+Imports System
 
+Module Module1
     <Obsolete>
     Sub Foo()
-
     End Sub
 
 End Module";

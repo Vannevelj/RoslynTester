@@ -325,6 +325,17 @@ namespace RoslynTester.Helpers
             foreach (var project in documents.Select(x => x.Project))
             {
                 var compilation = project.GetCompilationAsync().Result;
+
+                var systemDiags = compilation.GetDiagnostics();
+                // We're ignoring the diagnostic that tells us we don't have a main method
+                if (systemDiags.Where(x => x.Id != "CS5001" && x.Id != "BC30420").Any(d => d.Severity == DiagnosticSeverity.Error))
+                {
+                    var firstError = systemDiags.First(d => d.Severity == DiagnosticSeverity.Error);
+                    throw new InvalidCodeException(
+                        $"Unable to compile program: \"{firstError.GetMessage()}\"\n" +
+                        $"Error at line {firstError.Location.GetLineSpan().StartLinePosition.Line} and column {firstError.Location.GetLineSpan().StartLinePosition.Character}");
+                }
+
                 var diags = compilation.WithAnalyzers(ImmutableArray.Create(analyzer)).GetAnalyzerDiagnosticsAsync().Result;
                 foreach (var diagnostic in diags)
                 {
