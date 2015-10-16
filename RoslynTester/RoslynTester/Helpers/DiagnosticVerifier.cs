@@ -328,7 +328,8 @@ namespace RoslynTester.Helpers
 
                 var systemDiags = compilation.GetDiagnostics();
                 // We're ignoring the diagnostic that tells us we don't have a main method
-                if (systemDiags.Where(x => x.Id != "CS5001" && x.Id != "BC30420").Any(d => d.Severity == DiagnosticSeverity.Error))
+                // We're also ignoring the diagnostics that complain about not being able to find a type or namespace
+                if (systemDiags.Where(x => x.Id != "CS5001" && x.Id != "BC30420" && x.Id != "CS0246").Any(d => d.Severity == DiagnosticSeverity.Error))
                 {
                     var firstError = systemDiags.First(d => d.Severity == DiagnosticSeverity.Error);
                     throw new InvalidCodeException(
@@ -410,14 +411,16 @@ namespace RoslynTester.Helpers
 
             var csharpReferences = new[]
                     {
-                        CorlibReference, SystemCoreReference,
+                        CorlibReference,
+                        SystemCoreReference,
                         CSharpSymbolsReference,
                         CodeAnalysisReference
                     };
 
             var visualBasicReferences = new[]
                     {
-                        CorlibReference, SystemCoreReference,
+                        CorlibReference,
+                        SystemCoreReference,
                         VisualBasicSymbolsReference,
                         VisualBasicStandardModuleAttributeReference,
                         CodeAnalysisReference
