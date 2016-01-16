@@ -334,7 +334,8 @@ namespace RoslynTester.Helpers
                     var firstError = systemDiags.First(d => d.Severity == DiagnosticSeverity.Error);
                     throw new InvalidCodeException(
                         $"Unable to compile program: \"{firstError.GetMessage()}\"\n" +
-                        $"Error at line {firstError.Location.GetLineSpan().StartLinePosition.Line} and column {firstError.Location.GetLineSpan().StartLinePosition.Character}");
+                        $"Error at line {firstError.Location.GetLineSpan().StartLinePosition.Line} and column {firstError.Location.GetLineSpan().StartLinePosition.Character}." +
+                        $"{string.Join(Environment.NewLine, project.Documents.Select(x => x.GetTextAsync().Result))}");
                 }
 
                 var diags = compilation.WithAnalyzers(ImmutableArray.Create(analyzer)).GetAnalyzerDiagnosticsAsync().Result;
