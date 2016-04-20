@@ -18,24 +18,26 @@ namespace RoslynTester.Helpers
     ///     Superclass of all Unit Tests for DiagnosticAnalyzers
     /// </summary>
     public abstract class DiagnosticVerifier
-    {
-        private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
-        private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
+    {        
         private const string CSharpFileExtension = ".cs";
-        private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).Assembly.Location);
-
-        private static readonly MetadataReference VisualBasicSymbolsReference = MetadataReference.CreateFromFile(typeof (VisualBasicCompilation).Assembly.Location);
-        private static readonly MetadataReference VisualBasicStandardModuleAttributeReference = MetadataReference.CreateFromFile(typeof (StandardModuleAttribute).Assembly.Location);
         private const string FileName = "Test";
         private const string FileNameTemplate = FileName + "{0}{1}";
         private const string ProjectName = "TestProject";
-        private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location);
         private const string VisualBasicFileExtension = ".vb";
-        private readonly string _languageName;
+
+        internal readonly VerifierConfiguration _verifierConfiguration;
+
+        protected IConfigureVerifier Configure
+        {
+            get
+            {
+                return _verifierConfiguration;
+            }
+        }
 
         public DiagnosticVerifier(string languageName)
         {
-            _languageName = languageName;
+            _verifierConfiguration = new VerifierConfiguration(languageName);
         }
 
         /// <summary>
@@ -107,7 +109,7 @@ namespace RoslynTester.Helpers
         /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
         protected void VerifyDiagnostic(string[] sources, params DiagnosticResult[] expected)
         {
-            VerifyDiagnostics(sources, _languageName, expected);
+            VerifyDiagnostics(sources, _verifierConfiguration, expected);
         }
 
         /// <summary>
@@ -118,7 +120,7 @@ namespace RoslynTester.Helpers
         /// <param name="expected">Diagnostic messages that should appear after the analyzer is run on the sources</param>
         protected void VerifyDiagnostic(string[] sources, params string[] expected)
         {
-            VerifyDiagnostics(sources, _languageName, expected);
+            VerifyDiagnostics(sources, _verifierConfiguration, expected);
         }
 
         /// <summary>
@@ -129,7 +131,7 @@ namespace RoslynTester.Helpers
         /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
         protected void VerifyDiagnostic(string source, params DiagnosticResult[] expected)
         {
-            VerifyDiagnostics(new[] { source }, _languageName, expected);
+            VerifyDiagnostics(new[] { source }, _verifierConfiguration, expected);
         }
 
         /// <summary>
@@ -140,7 +142,7 @@ namespace RoslynTester.Helpers
         /// <param name="expected">Diagnostic messages that should appear after the analyzer is run on the sources</param>
         protected void VerifyDiagnostic(string source, params string[] expected)
         {
-            VerifyDiagnostics(new[] { source }, _languageName, expected);
+            VerifyDiagnostics(new[] { source },  _verifierConfiguration, expected);
         }
 
         /// <summary>
@@ -149,7 +151,7 @@ namespace RoslynTester.Helpers
         /// <param name="source">A string representing the document to run the analyzer on</param>
         protected void VerifyDiagnostic(string source)
         {
-            VerifyDiagnostics(new[] { source }, _languageName, new string[] { });
+            VerifyDiagnostics(new[] { source },  _verifierConfiguration, new string[] { });
         }
 
         /// <summary>
@@ -158,7 +160,7 @@ namespace RoslynTester.Helpers
         /// <param name="sources">An array of strings representing the documents</param>
         protected void VerifyDiagnostic(string[] sources)
         {
-            VerifyDiagnostics(sources, _languageName, new string[] { });
+            VerifyDiagnostics(sources,  _verifierConfiguration, new string[] { });
         }
 
         /// <summary>
@@ -168,9 +170,9 @@ namespace RoslynTester.Helpers
         /// <param name="sources">An array of strings to create source documents from to run teh analyzers on</param>
         /// <param name="language">The language of the classes represented by the source strings</param>
         /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
-        private void VerifyDiagnostics(string[] sources, string language, params DiagnosticResult[] expected)
+        private void VerifyDiagnostics(string[] sources, VerifierConfiguration verifierConfiguration, params DiagnosticResult[] expected)
         {
-            var diagnostics = GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer, GetDocuments(sources, language));
+            var diagnostics = GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer, GetDocuments(sources, verifierConfiguration));
             VerifyDiagnosticResults(diagnostics, DiagnosticAnalyzer, expected);
         }
 
@@ -181,9 +183,9 @@ namespace RoslynTester.Helpers
         /// <param name="sources">An array of strings to create source documents from to run teh analyzers on</param>
         /// <param name="language">The language of the classes represented by the source strings</param>
         /// <param name="expected">Diagnostic messages that should appear after the analyzer is run on the sources</param>
-        private void VerifyDiagnostics(string[] sources, string language, params string[] expected)
+        private void VerifyDiagnostics(string[] sources, VerifierConfiguration verifierConfiguration, params string[] expected)
         {
-            var diagnostics = GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer, GetDocuments(sources, language));
+            var diagnostics = GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer, GetDocuments(sources, verifierConfiguration));
             VerifyDiagnosticResults(diagnostics, DiagnosticAnalyzer, expected);
         }
 
@@ -373,14 +375,14 @@ namespace RoslynTester.Helpers
         /// <param name="sources">Classes in the form of strings</param>
         /// <param name="language">The language the source code is in</param>
         /// <returns>A Tuple containing the Documents produced from the sources and thier TextSpans if relevant</returns>
-        private static Document[] GetDocuments(string[] sources, string language)
+        private static Document[] GetDocuments(string[] sources, VerifierConfiguration verifierConfiguration)
         {
-            if (language != LanguageNames.CSharp && language != LanguageNames.VisualBasic)
+            if (verifierConfiguration.LanguageName != LanguageNames.CSharp && verifierConfiguration.LanguageName != LanguageNames.VisualBasic)
             {
                 throw new ArgumentException("Unsupported Language");
             }
 
-            var project = CreateProject(sources, language);
+            var project = CreateProject(sources, verifierConfiguration);
             var documents = project.Documents.ToArray();
 
             if (sources.Length != documents.Length)
@@ -397,9 +399,9 @@ namespace RoslynTester.Helpers
         /// <param name="source">Classes in the form of a string</param>
         /// <param name="language">The language the source code is in</param>
         /// <returns>A Document created from the source string</returns>
-        internal static Document CreateDocument(string source, string language = LanguageNames.CSharp)
+        internal static Document CreateDocument(string source, VerifierConfiguration verifierConfiguration)
         {
-            return CreateProject(new[] { source }, language).Documents.First();
+            return CreateProject(new[] { source }, verifierConfiguration).Documents.First();
         }
 
         /// <summary>
@@ -408,32 +410,15 @@ namespace RoslynTester.Helpers
         /// <param name="sources">Classes in the form of strings</param>
         /// <param name="language">The language the source code is in</param>
         /// <returns>A Project created out of the Douments created from the source strings</returns>
-        private static Project CreateProject(IEnumerable<string> sources, string language = LanguageNames.CSharp)
+        private static Project CreateProject(IEnumerable<string> sources, VerifierConfiguration verifierConfiguration)
         {
-            var extension = language == LanguageNames.CSharp ? CSharpFileExtension : VisualBasicFileExtension;
+            var extension = verifierConfiguration.LanguageName == LanguageNames.CSharp ? CSharpFileExtension : VisualBasicFileExtension;
             var projectId = ProjectId.CreateNewId(ProjectName);
-
-            var csharpReferences = new[]
-                    {
-                        CorlibReference,
-                        SystemCoreReference,
-                        CSharpSymbolsReference,
-                        CodeAnalysisReference
-                    };
-
-            var visualBasicReferences = new[]
-                    {
-                        CorlibReference,
-                        SystemCoreReference,
-                        VisualBasicSymbolsReference,
-                        VisualBasicStandardModuleAttributeReference,
-                        CodeAnalysisReference
-                    };
 
             var solution = new AdhocWorkspace()
                 .CurrentSolution
-                .AddProject(projectId, ProjectName, ProjectName, language)
-                .AddMetadataReferences(projectId, language == LanguageNames.CSharp ? csharpReferences : visualBasicReferences);
+                .AddProject(projectId, ProjectName, ProjectName, verifierConfiguration.LanguageName)
+                .AddMetadataReferences(projectId, verifierConfiguration.AssemblyReferences);
 
             var count = 0;
             foreach (var source in sources)

@@ -24,7 +24,7 @@ namespace RoslynTester.Helpers
 
         internal void VerifyFix(CodeFixProvider codeFixProvider,
                                 DiagnosticAnalyzer diagnosticAnalyzer,
-                                string language,
+                                VerifierConfiguration configuration,
                                 string oldSource,
                                 string newSource,
                                 int? codeFixIndex = null,
@@ -35,14 +35,14 @@ namespace RoslynTester.Helpers
 
             if (allowedNewCompilerDiagnosticsId == null || !allowedNewCompilerDiagnosticsId.Any())
             {
-                VerifyFix(language, DiagnosticAnalyzer, CodeFixProvider, oldSource, newSource, codeFixIndex, false);
+                VerifyFix(configuration, DiagnosticAnalyzer, CodeFixProvider, oldSource, newSource, codeFixIndex, false);
             }
             else
             {
-                var document = DiagnosticVerifier.CreateDocument(oldSource, language);
+                var document = DiagnosticVerifier.CreateDocument(oldSource, configuration);
                 var compilerDiagnostics = GetCompilerDiagnostics(document).ToArray();
 
-                VerifyFix(language, DiagnosticAnalyzer, CodeFixProvider, oldSource, newSource, codeFixIndex, true);
+                VerifyFix(configuration, DiagnosticAnalyzer, CodeFixProvider, oldSource, newSource, codeFixIndex, true);
 
                 var newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document)).ToList();
 
@@ -58,7 +58,7 @@ namespace RoslynTester.Helpers
 
         internal void VerifyFix(CodeFixProvider codeFixProvider,
                                 DiagnosticAnalyzer diagnosticAnalyzer,
-                                string language,
+                                VerifierConfiguration configuration,
                                 string oldSource,
                                 string newSource,
                                 int? codeFixIndex = null,
@@ -66,7 +66,7 @@ namespace RoslynTester.Helpers
         {
             CodeFixProvider = codeFixProvider;
             DiagnosticAnalyzer = diagnosticAnalyzer;
-            VerifyFix(language, DiagnosticAnalyzer, CodeFixProvider, oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
+            VerifyFix(configuration, DiagnosticAnalyzer, CodeFixProvider, oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace RoslynTester.Helpers
         ///     A bool controlling whether or not the test will fail if the CodeFix
         ///     introduces other warnings after being applied
         /// </param>
-        private void VerifyFix(string language, DiagnosticAnalyzer analyzer, CodeFixProvider codeFixProvider, string oldSource, string newSource, int? codeFixIndex, bool allowNewCompilerDiagnostics)
+        private void VerifyFix(VerifierConfiguration configuration, DiagnosticAnalyzer analyzer, CodeFixProvider codeFixProvider, string oldSource, string newSource, int? codeFixIndex, bool allowNewCompilerDiagnostics)
         {
             if (analyzer == null)
             {
@@ -98,7 +98,7 @@ namespace RoslynTester.Helpers
                 throw new ArgumentNullException(nameof(codeFixProvider));
             }
 
-            var document = DiagnosticVerifier.CreateDocument(oldSource, language);
+            var document = DiagnosticVerifier.CreateDocument(oldSource, configuration);
             var analyzerDiagnostics = DiagnosticVerifier.GetSortedDiagnosticsFromDocuments(analyzer, document);
             var compilerDiagnostics = GetCompilerDiagnostics(document).ToArray();
             var attempts = analyzerDiagnostics.Length;
