@@ -322,7 +322,7 @@ namespace RoslynTester.Helpers
         internal static Diagnostic[] GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, params Document[] documents)
         {
             var diagnostics = new List<Diagnostic>();
-            foreach (var project in documents.Select(x => x.Project))
+            foreach (var project in documents.Select(x => x.Project).Distinct())
             {
                 var compilation = project.GetCompilationAsync().Result;
 

@@ -101,7 +101,9 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
+          <Private>False</Private>
+        </Reference>
       </ItemGroup>
     </Otherwise>
   </Choose>
@@ -116,6 +118,8 @@
     <Compile Include="SampleAnalyzer_FixIntroducesNewDiagnostic\SampleAnalyzer_FixIntroducesNewDiagnosticCodeFix.cs" />
     <Compile Include="SampleVBAnalyzer\VBTestAnalyzer.cs" />
     <Compile Include="SampleVBAnalyzer\VBTestCodeFix.cs" />
+    <Compile Include="Temp\TempAnalyzer.cs" />
+    <Compile Include="Temp\UnitTest1.cs" />
     <Compile Include="Tests\SampleAnalyzerWithErrorSeverityTests.cs" />
     <Compile Include="Tests\SampleAnalyzer_VBAndCSharp_CSharpTests.cs" />
     <Compile Include="Tests\SampleAnalyzer_VBAndCSharp_VisualBasicTests.cs" />
