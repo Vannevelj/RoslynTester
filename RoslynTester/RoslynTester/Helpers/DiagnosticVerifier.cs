@@ -326,10 +326,13 @@ namespace RoslynTester.Helpers
             {
                 var compilation = project.GetCompilationAsync().Result;
 
-                var systemDiags = compilation.GetDiagnostics();
                 // We're ignoring the diagnostic that tells us we don't have a main method
                 // We're also ignoring the diagnostics that complain about not being able to find a type or namespace
-                if (systemDiags.Where(x => x.Id != "CS5001" && x.Id != "BC30420" && x.Id != "CS0246").Any(d => d.Severity == DiagnosticSeverity.Error))
+                var systemDiags = compilation.GetDiagnostics()
+                        .Where(x => x.Id != "CS5001" && x.Id != "BC30420" && x.Id != "CS0246")
+                        .ToList();
+
+                if (systemDiags.Any(d => d.Severity == DiagnosticSeverity.Error))
                 {
                     var firstError = systemDiags.First(d => d.Severity == DiagnosticSeverity.Error);
                     throw new InvalidCodeException(
