@@ -108,6 +108,9 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="DateTimeExtentions.cs" />
+    <Compile Include="SampleAnalyzerWithAssemblyReference\TestAnalyzerWithAssemblyReference.cs" />
+    <Compile Include="SampleAnalyzerWithAssemblyReference\TestCodeFixWithAssemblyReference.cs" />
     <Compile Include="SampleAnalyzerWithErrorSeverity\TestAnalyzerWithErrorSeverity.cs" />
     <Compile Include="SampleAnalyzerWithErrorSeverity\TestCodeFixWithErrorSeverity.cs" />
     <Compile Include="SampleAnalyzer_VBAndCSharp\SampleAnalyzer_VBAndCSharpAnalyzer.cs" />
@@ -120,6 +123,7 @@
     <Compile Include="SampleVBAnalyzer\VBTestCodeFix.cs" />
     <Compile Include="Temp\TempAnalyzer.cs" />
     <Compile Include="Temp\UnitTest1.cs" />
+    <Compile Include="Tests\SampleAnalyzerWithAssemblyReferenceTests.cs" />
     <Compile Include="Tests\SampleAnalyzerWithErrorSeverityTests.cs" />
     <Compile Include="Tests\SampleAnalyzer_VBAndCSharp_CSharpTests.cs" />
     <Compile Include="Tests\SampleAnalyzer_VBAndCSharp_VisualBasicTests.cs" />

@@ -105,6 +105,7 @@
     <Compile Include="Helpers\CSharp\CSharpCodeFixVerifier.cs" />
     <Compile Include="Helpers\CSharp\CSharpDiagnosticVerifier.cs" />
     <Compile Include="Helpers\Testing\InvalidCodeException.cs" />
+    <Compile Include="Helpers\VerifierConfiguration.cs" />
     <Compile Include="Helpers\VisualBasic\VisualBasicCodeFixVerifier.cs" />
     <Compile Include="Helpers\VisualBasic\VisualBasicDiagnosticVerifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
