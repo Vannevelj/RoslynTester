@@ -28,21 +28,22 @@ namespace RoslynTester.Helpers
                                 string oldSource,
                                 string newSource,
                                 int? codeFixIndex = null,
-                                string[] allowedNewCompilerDiagnosticsId = null)
+                                string[] allowedNewCompilerDiagnosticsId = null,
+                                bool allowUnsafe = false)
         {
             CodeFixProvider = codeFixProvider;
             DiagnosticAnalyzer = diagnosticAnalyzer;
 
             if (allowedNewCompilerDiagnosticsId == null || !allowedNewCompilerDiagnosticsId.Any())
             {
-                VerifyFix(language, DiagnosticAnalyzer, CodeFixProvider, oldSource, newSource, codeFixIndex, false);
+                VerifyFix(language, DiagnosticAnalyzer, CodeFixProvider, oldSource, newSource, codeFixIndex, false, allowUnsafe);
             }
             else
             {
                 var document = DiagnosticVerifier.CreateDocument(oldSource, language);
                 var compilerDiagnostics = GetCompilerDiagnostics(document).ToArray();
 
-                VerifyFix(language, DiagnosticAnalyzer, CodeFixProvider, oldSource, newSource, codeFixIndex, true);
+                VerifyFix(language, DiagnosticAnalyzer, CodeFixProvider, oldSource, newSource, codeFixIndex, true, allowUnsafe);
 
                 var newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document)).ToList();
 
@@ -62,11 +63,12 @@ namespace RoslynTester.Helpers
                                 string oldSource,
                                 string newSource,
                                 int? codeFixIndex = null,
-                                bool allowNewCompilerDiagnostics = false)
+                                bool allowNewCompilerDiagnostics = false,
+                                bool allowUnsafe = false)
         {
             CodeFixProvider = codeFixProvider;
             DiagnosticAnalyzer = diagnosticAnalyzer;
-            VerifyFix(language, DiagnosticAnalyzer, CodeFixProvider, oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
+            VerifyFix(language, DiagnosticAnalyzer, CodeFixProvider, oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics, allowUnsafe);
         }
 
         /// <summary>
@@ -86,7 +88,8 @@ namespace RoslynTester.Helpers
         ///     A bool controlling whether or not the test will fail if the CodeFix
         ///     introduces other warnings after being applied
         /// </param>
-        private void VerifyFix(string language, DiagnosticAnalyzer analyzer, CodeFixProvider codeFixProvider, string oldSource, string newSource, int? codeFixIndex, bool allowNewCompilerDiagnostics)
+        /// <param name="allowUnsafe">Allow usafe code in the compilation</param>
+        private void VerifyFix(string language, DiagnosticAnalyzer analyzer, CodeFixProvider codeFixProvider, string oldSource, string newSource, int? codeFixIndex, bool allowNewCompilerDiagnostics, bool allowUnsafe)
         {
             if (analyzer == null)
             {
@@ -99,7 +102,7 @@ namespace RoslynTester.Helpers
             }
 
             var document = DiagnosticVerifier.CreateDocument(oldSource, language);
-            var analyzerDiagnostics = DiagnosticVerifier.GetSortedDiagnosticsFromDocuments(analyzer, document);
+            var analyzerDiagnostics = DiagnosticVerifier.GetSortedDiagnosticsFromDocuments(analyzer, allowUnsafe, document);
             var compilerDiagnostics = GetCompilerDiagnostics(document).ToArray();
             var attempts = analyzerDiagnostics.Length;
 
@@ -121,7 +124,7 @@ namespace RoslynTester.Helpers
                 }
 
                 document = ApplyFix(document, actions.ElementAt(0));
-                analyzerDiagnostics = DiagnosticVerifier.GetSortedDiagnosticsFromDocuments(analyzer, document);
+                analyzerDiagnostics = DiagnosticVerifier.GetSortedDiagnosticsFromDocuments(analyzer, allowUnsafe, document);
 
                 var newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document));
 
