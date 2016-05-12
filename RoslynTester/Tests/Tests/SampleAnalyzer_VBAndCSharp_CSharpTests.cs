@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RoslynTester.Helpers.CSharp;
+using RoslynTester.Helpers.Testing;
 using Tests.SampleAnalyzer_VBAndCSharp;
 
 namespace Tests.Tests
@@ -29,6 +30,67 @@ namespace Tests.Tests
 
 namespace ConsoleApplication1
 {
+    [Flags]
+    enum Foo
+    {
+    }
+}";
+
+            VerifyDiagnostic(original, SampleAnalyzer_VBAndCSharpAnalyzer.Rule.MessageFormat.ToString());
+            VerifyFix(original, result);
+        }
+
+        [TestMethod]
+        public void SampleAnalyzer_AllowsUnsafeCode()
+        {
+            var original =
+@"namespace ConsoleApplication1
+{
+    unsafe struct Fizz { }
+
+    enum Foo
+    {
+    }
+}";
+
+            var result =
+@"using System;
+
+namespace ConsoleApplication1
+{
+    unsafe struct Fizz { }
+
+    [Flags]
+    enum Foo
+    {
+    }
+}";
+
+            VerifyDiagnostic(original, true, SampleAnalyzer_VBAndCSharpAnalyzer.Rule.MessageFormat.ToString());
+            VerifyFix(original, result, allowUnsafe: true);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidCodeException))]
+        public void SampleAnalyzer_DoesNotAllowUnsafeCode()
+        {
+            var original =
+@"namespace ConsoleApplication1
+{
+    unsafe struct Fizz { }
+
+    enum Foo
+    {
+    }
+}";
+
+            var result =
+@"using System;
+
+namespace ConsoleApplication1
+{
+    unsafe struct Fizz { }
+
     [Flags]
     enum Foo
     {

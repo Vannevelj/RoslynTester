@@ -23,15 +23,16 @@ namespace RoslynTester.Helpers.CSharp
         ///     A bool controlling whether or not the test will fail if the CodeFix
         ///     introduces other warnings after being applied
         /// </param>
-        protected void VerifyFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
+        /// <param name="allowUnsafe">Allow unsafe code in the compilation</param>
+        protected void VerifyFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false, bool allowUnsafe = false)
         {
-            _codeFixVerifier.VerifyFix(CodeFixProvider, DiagnosticAnalyzer, LanguageNames.CSharp, oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
+            _codeFixVerifier.VerifyFix(CodeFixProvider, DiagnosticAnalyzer, LanguageNames.CSharp, oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics, allowUnsafe);
         }
 
-        protected void VerifyFix(string oldSource, string newSource, int? codeFixIndex = null,
+        protected void VerifyFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowUnsafe = false,
             params string[] allowedNewCompilerDiagnosticsId)
         {
-            _codeFixVerifier.VerifyFix(CodeFixProvider, DiagnosticAnalyzer, LanguageNames.CSharp, oldSource, newSource, codeFixIndex, allowedNewCompilerDiagnosticsId);
+            _codeFixVerifier.VerifyFix(CodeFixProvider, DiagnosticAnalyzer, LanguageNames.CSharp, oldSource, newSource, codeFixIndex, allowedNewCompilerDiagnosticsId, allowUnsafe);
         }
     }
 }

@@ -107,7 +107,7 @@ namespace RoslynTester.Helpers
         /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
         protected void VerifyDiagnostic(string[] sources, params DiagnosticResult[] expected)
         {
-            VerifyDiagnostics(sources, _languageName, expected);
+            VerifyDiagnostics(sources, _languageName, false, expected);
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace RoslynTester.Helpers
         /// <param name="expected">Diagnostic messages that should appear after the analyzer is run on the sources</param>
         protected void VerifyDiagnostic(string[] sources, params string[] expected)
         {
-            VerifyDiagnostics(sources, _languageName, expected);
+            VerifyDiagnostics(sources, _languageName, false, expected);
         }
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace RoslynTester.Helpers
         /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
         protected void VerifyDiagnostic(string source, params DiagnosticResult[] expected)
         {
-            VerifyDiagnostics(new[] { source }, _languageName, expected);
+            VerifyDiagnostics(new[] { source }, _languageName, false, expected);
         }
 
         /// <summary>
@@ -140,25 +140,7 @@ namespace RoslynTester.Helpers
         /// <param name="expected">Diagnostic messages that should appear after the analyzer is run on the sources</param>
         protected void VerifyDiagnostic(string source, params string[] expected)
         {
-            VerifyDiagnostics(new[] { source }, _languageName, expected);
-        }
-
-        /// <summary>
-        ///     Verifies that no diagnostic is triggered.
-        /// </summary>
-        /// <param name="source">A string representing the document to run the analyzer on</param>
-        protected void VerifyDiagnostic(string source)
-        {
-            VerifyDiagnostics(new[] { source }, _languageName, new string[] { });
-        }
-
-        /// <summary>
-        ///     Verifies that no diagnostic is triggered.
-        /// </summary>
-        /// <param name="sources">An array of strings representing the documents</param>
-        protected void VerifyDiagnostic(string[] sources)
-        {
-            VerifyDiagnostics(sources, _languageName, new string[] { });
+            VerifyDiagnostics(new[] { source }, _languageName, false, expected);
         }
 
         /// <summary>
@@ -170,7 +152,7 @@ namespace RoslynTester.Helpers
         /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
         private void VerifyDiagnostics(string[] sources, string language, params DiagnosticResult[] expected)
         {
-            var diagnostics = GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer, GetDocuments(sources, language));
+            var diagnostics = GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer, false, GetDocuments(sources, language));
             VerifyDiagnosticResults(diagnostics, DiagnosticAnalyzer, expected);
         }
 
@@ -183,7 +165,103 @@ namespace RoslynTester.Helpers
         /// <param name="expected">Diagnostic messages that should appear after the analyzer is run on the sources</param>
         private void VerifyDiagnostics(string[] sources, string language, params string[] expected)
         {
-            var diagnostics = GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer, GetDocuments(sources, language));
+            var diagnostics = GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer, false, GetDocuments(sources, language));
+            VerifyDiagnosticResults(diagnostics, DiagnosticAnalyzer, expected);
+        }
+
+        /// <summary>
+        ///     Called to test a DiagnosticAnalyzer when applied on the inputted strings as a source
+        ///     Note: input a DiagnosticResult for each Diagnostic expected
+        /// </summary>
+        /// <param name="sources">An array of strings to create source documents from to run the analyzers on</param>
+        /// <param name="allowUnsafe">Allow unsafe code in the compilation</param>
+        /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
+        protected void VerifyDiagnostic(string[] sources, bool allowUnsafe = false, params DiagnosticResult[] expected)
+        {
+            VerifyDiagnostics(sources, _languageName, allowUnsafe, expected);
+        }
+
+        /// <summary>
+        ///     Called to test a DiagnosticAnalyzer when applied on the inputted strings as a source
+        ///     Note: input a DiagnosticResult for each Diagnostic expected
+        /// </summary>
+        /// <param name="sources">An array of strings to create source documents from to run the analyzers on</param>
+        /// <param name="allowUnsafe">Allow unsafe code in the compilation</param>
+        /// <param name="expected">Diagnostic messages that should appear after the analyzer is run on the sources</param>
+        protected void VerifyDiagnostic(string[] sources, bool allowUnsafe = false, params string[] expected)
+        {
+            VerifyDiagnostics(sources, _languageName, allowUnsafe, expected);
+        }
+
+        /// <summary>
+        ///     Called to test a DiagnosticAnalyzer when applied on the inputted strings as a source
+        ///     Note: input a DiagnosticResult for each Diagnostic expected
+        /// </summary>
+        /// <param name="source">A string representing the document to run the analyzer on</param>
+        /// <param name="allowUnsafe">Allow unsafe code in the compilation</param>
+        /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
+        protected void VerifyDiagnostic(string source, bool allowUnsafe = false, params DiagnosticResult[] expected)
+        {
+            VerifyDiagnostics(new[] { source }, _languageName, allowUnsafe, expected);
+        }
+
+        /// <summary>
+        ///     Called to test a DiagnosticAnalyzer when applied on the inputted strings as a source
+        ///     Note: input a DiagnosticResult for each Diagnostic expected
+        /// </summary>
+        /// <param name="source">A string representing the document to run the analyzer on</param>
+        /// <param name="allowUnsafe">Allow unsafe code in the compilation</param>
+        /// <param name="expected">Diagnostic messages that should appear after the analyzer is run on the sources</param>
+        protected void VerifyDiagnostic(string source, bool allowUnsafe = false, params string[] expected)
+        {
+            VerifyDiagnostics(new[] { source }, _languageName, allowUnsafe, expected);
+        }
+
+        /// <summary>
+        ///     Verifies that no diagnostic is triggered.
+        /// </summary>
+        /// <param name="source">A string representing the document to run the analyzer on</param>
+        /// <param name="allowUnsafe">Allow unsafe code in the compilation</param>
+        protected void VerifyDiagnostic(string source, bool allowUnsafe = false)
+        {
+            VerifyDiagnostics(new[] { source }, _languageName, allowUnsafe, new string[] { });
+        }
+
+        /// <summary>
+        ///     Verifies that no diagnostic is triggered.
+        /// </summary>
+        /// <param name="sources">An array of strings representing the documents</param>
+        /// <param name="allowUnsafe">Allow unsafe code in the compilation</param>
+        protected void VerifyDiagnostic(string[] sources, bool allowUnsafe = false)
+        {
+            VerifyDiagnostics(sources, _languageName, allowUnsafe, new string[] { });
+        }
+
+        /// <summary>
+        ///     General method that gets a collection of actual diagnostics found in the source after the analyzer is run,
+        ///     then verifies each of them.
+        /// </summary>
+        /// <param name="sources">An array of strings to create source documents from to run teh analyzers on</param>
+        /// <param name="language">The language of the classes represented by the source strings</param>
+        /// <param name="allowUnsafe">Allow unsafe code in the compilation</param>
+        /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
+        private void VerifyDiagnostics(string[] sources, string language, bool allowUnsafe = false, params DiagnosticResult[] expected)
+        {
+            var diagnostics = GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer, allowUnsafe, GetDocuments(sources, language));
+            VerifyDiagnosticResults(diagnostics, DiagnosticAnalyzer, expected);
+        }
+
+        /// <summary>
+        ///     General method that gets a collection of actual diagnostics found in the source after the analyzer is run,
+        ///     then verifies each of them.
+        /// </summary>
+        /// <param name="sources">An array of strings to create source documents from to run teh analyzers on</param>
+        /// <param name="language">The language of the classes represented by the source strings</param>
+        /// <param name="allowUnsafe">Allow unsafe code in the compilation</param>
+        /// <param name="expected">Diagnostic messages that should appear after the analyzer is run on the sources</param>
+        private void VerifyDiagnostics(string[] sources, string language, bool allowUnsafe = false, params string[] expected)
+        {
+            var diagnostics = GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer, allowUnsafe, GetDocuments(sources, language));
             VerifyDiagnosticResults(diagnostics, DiagnosticAnalyzer, expected);
         }
 
@@ -317,14 +395,23 @@ namespace RoslynTester.Helpers
         ///     The returned diagnostics are then ordered by location in the source document.
         /// </summary>
         /// <param name="analyzer">The analyzer to run on the documents</param>
+        /// <param name="allowUnsafe">Allow unsafe code in the compilation</param>
         /// <param name="documents">The Documents that the analyzer will be run on</param>
         /// <returns>An IEnumerable of Diagnostics that surfaced in the source code, sorted by Location</returns>
-        internal static Diagnostic[] GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, params Document[] documents)
+        internal static Diagnostic[] GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, bool allowUnsafe, params Document[] documents)
         {
             var diagnostics = new List<Diagnostic>();
             foreach (var project in documents.Select(x => x.Project))
             {
-                var compilation = project.GetCompilationAsync().Result;
+                var updatedProject = project;
+                if (allowUnsafe)
+                {
+                    // VB.NET doesn't have this option: http://stackoverflow.com/a/5944256
+                    var options = new CSharpCompilationOptions(OutputKind.ConsoleApplication).WithAllowUnsafe(true);
+                    updatedProject = project.WithCompilationOptions(options);
+                }
+
+                var compilation = updatedProject.GetCompilationAsync().Result;
 
                 // We're ignoring the diagnostic that tells us we don't have a main method
                 // We're also ignoring the diagnostics that complain about not being able to find a type or namespace
@@ -338,7 +425,7 @@ namespace RoslynTester.Helpers
                     throw new InvalidCodeException(
                         $"Unable to compile program: \"{firstError.GetMessage()}\"\n" +
                         $"Error at line {firstError.Location.GetLineSpan().StartLinePosition.Line} and column {firstError.Location.GetLineSpan().StartLinePosition.Character}." +
-                        $"{string.Join(Environment.NewLine, project.Documents.Select(x => x.GetTextAsync().Result))}");
+                        $"{string.Join(Environment.NewLine, updatedProject.Documents.Select(x => x.GetTextAsync().Result))}");
                 }
 
                 var diags = compilation.WithAnalyzers(ImmutableArray.Create(analyzer)).GetAnalyzerDiagnosticsAsync().Result;
